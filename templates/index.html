@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}SmartCart - Iron-Powered Shopping{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/admin.css">
+<style>
+    .hero-section {
+        background:darkslategrey;
+        color: white;
+        padding: 4rem 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .feature-card {
+        border: none;
+        transition: transform 0.3s ease;
+        height: 100%;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<!-- Override navbar to show specific links for landing page if needed, or keep default -->
+<nav class="navbar navbar-expand-lg navbar-dark mb-5 py-4" style="background-color: #131921;">
+    <div class="container">
+        <a class="navbar-brand" href="/">⚡ SmartCart</a>
+        <div class="d-flex">
+            <a href="/admin-login" class="btn btn-outline-light me-2">Admin Login</a>
+            <a href="/user-login" class="btn btn-light">User Login</a>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <div class="hero-section">
+        <h1 class="hero-title">⚡ Welcome to SmartCart</h1>
+        <p class="lead mb-4">Powered by Satya Vardhan Reddy</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="/user-login" class="btn btn-light btn-lg px-4">Start Shopping</a>
+            <a href="/admin-login" class="btn btn-outline-light btn-lg px-4">Admin Access</a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card feature-card p-4">
+                <div class="card-body">
+                    <h2 class="card-title text-primary mb-3">Manage Your Products with SmartCart Efficiency</h2>
+                    <p class="card-text text-muted">SmartCart is a powerful e-commerce management system built with
+                        cutting-edge technology. Experience seamless inventory management, secure transactions, and a
+                        user-friendly interface.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

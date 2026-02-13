@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.order_id }} - SmartCart Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/admin.css">
+<style>
+    .order-box {
+        width: 100%;
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        margin-top: 20px;
+        background: white;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
+    <div class="container">
+        <a class="navbar-brand" href="/">⚡ SmartCart</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
+            aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="adminNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="/admin-dashboard">📊 Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/profile">👤 Profile</a></li>
+                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/admin-logout">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="page-header" style="max-width: 800px; margin: 0 auto 1rem auto;">
+        <h2>📦 Order Details #{{ order.order_id }}</h2>
+    </div>
+
+    <div class="order-box">
+        <p><strong>Payment:</strong> {{ order.payment_status }}</p>
+        <p><strong>Total Amount:</strong> ₹{{ order.amount }}</p>
+        <p><strong>Current Status:</strong> {{ order.order_status }}</p>
+
+        <h3 class="mt-4">Update Order Status</h3>
+
+        <form method="POST" action="/admin/update-order-status/{{ order.order_id }}"
+            class="d-flex gap-2 align-items-center mb-4">
+            <select name="status" class="form-select w-auto">
+                <option value="Pending" {% if order.order_status=='Pending' %}selected{% endif %}>Pending</option>
+                <option value="Confirmed" {% if order.order_status=='Confirmed' %}selected{% endif %}>Confirmed</option>
+                <option value="Packed" {% if order.order_status=='Packed' %}selected{% endif %}>Packed</option>
+                <option value="Shipped" {% if order.order_status=='Shipped' %}selected{% endif %}>Shipped</option>
+                <option value="Delivered" {% if order.order_status=='Delivered' %}selected{% endif %}>Delivered</option>
+            </select>
+
+            <button type="submit" class="btn btn-success">Update</button>
+        </form>
+
+        <h3>Items</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for it in items %}
+                    <tr>
+                        <td>{{ it.product_name }}</td>
+                        <td>{{ it.quantity }}</td>
+                        <td>₹{{ it.price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 1rem; text-align: center;">
+            <a href="/admin/orders" class="btn btn-secondary">← Back to Orders</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

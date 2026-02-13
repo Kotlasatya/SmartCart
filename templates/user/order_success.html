@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Order Successful - SmartCart{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/user.css">
+<style>
+    .success-container {
+        width: 100%;
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background: white;
+        margin-top: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .success-container h2 {
+        color: green;
+    }
+
+    .order-details {
+        text-align: left;
+        margin-top: 20px;
+        line-height: 1.6;
+    }
+
+    .items-list {
+        margin-top: 20px;
+    }
+
+    .items-list table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .items-list table,
+    th,
+    td {
+        border: 1px solid #ccc;
+    }
+
+    th,
+    td {
+        padding: 10px;
+    }
+
+    .custom-btn {
+        padding: 10px 15px;
+        background-color: #0077ff;
+        color: #fff;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-right: 10px;
+        display: inline-block;
+        border: none;
+        background-image: none;
+    }
+
+    .custom-btn:hover {
+        background-color: #005fcc;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
+    <div class="container">
+        <a class="navbar-brand" href="/">⚡ SmartCart</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNav"
+            aria-controls="userNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="userNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="/user-home">🏠 Home</a></li>
+                <li class="nav-item">
+                    <a class="nav-link position-relative" href="/user/cart">
+                        🛒 Cart
+                        {% if cart_count %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ cart_count }}
+                        </span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/user-logout">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="success-container">
+        <h2>🎉 Your Order is Confirmed!</h2>
+        <p>Thank you for shopping with <strong>SmartCart</strong>.</p>
+
+        <div class="order-details">
+            <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+            <p><strong>Payment ID:</strong> {{ order.razorpay_payment_id }}</p>
+            <p><strong>Amount Paid:</strong> ₹{{ order.amount }}</p>
+            <p><strong>Order Date:</strong> {{ order.created_at }}</p>
+        </div>
+
+        <div class="items-list">
+            <h3>Order Summary</h3>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <tr>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Price (₹)</th>
+                    </tr>
+
+                    {% for it in items %}
+                    <tr>
+                        <td>{{ it.product_name }}</td>
+                        <td>{{ it.quantity }}</td>
+                        <td>{{ it.price }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">
+            <a href="/user/download-invoice/{{ order.order_id }}" class="custom-btn w-100">Download Invoice (PDF)</a>
+            <a href="/user-home" class="custom-btn w-100" style="background-color: #0f766e;">Continue Shopping</a>
+            <a href="/user/my-orders" class="custom-btn w-100" style="background-color: #666;">View My Orders</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

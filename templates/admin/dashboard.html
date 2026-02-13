@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - SmartCart{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/admin.css">
+<style>
+    .dashboard-welcome {
+        margin-bottom: 2rem;
+    }
+
+    .admin-info {
+        color: #131921;
+        font-weight: 600;
+    }
+
+    .action-buttons {
+        margin: 2rem 0;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .search-section {
+        background: #FFF;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .product-toolbar {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
+    <div class="container">
+        <a class="navbar-brand" href="/">⚡ SmartCart</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
+            aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="adminNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/admin/profile">👤 My Profile</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/orders">📦 Orders</a></li>
+                <li class="nav-item"><a class="nav-link text-warning" href="/admin-logout">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-welcome">
+    <div class="p-4 bg-light rounded-3 border-start border-5 border-success shadow-sm">
+        <h1 class="display-6">⚡ Welcome, <span class="admin-info">{{ admin_name }}</span></h1>
+        <p class="lead mb-0">Manage your products efficiently with SmartCart</p>
+    </div>
+</div>
+
+<!-- Search & Filter Section -->
+<div class="card search-section">
+    <div class="card-body">
+        <h3 class="card-title h5 mb-3">🔍 Search & Filter Products</h3>
+
+        <div class="product-toolbar row g-3">
+            <div class="col-md-6">
+                <form method="GET" action="/admin-dashboard" class="d-flex gap-2">
+                    <input type="text" name="search" class="form-control" placeholder="Search products..."
+                        value="{{ request.args.get('search', '') }}">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <form method="GET" action="/admin-dashboard" class="d-flex gap-2 align-items-center">
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.category }}" {% if request.args.get('category')==cat.category %} selected
+                            {% endif %}>
+                            {{ cat.category }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-secondary">Filter</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Button -->
+<div class="action-buttons">
+    <a class="btn btn-success" href="/admin/add-item">➕ Add New Product</a>
+</div>
+
+<!-- Products Table -->
+<div class="table-responsive bg-white rounded shadow-sm p-3">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#ID</th>
+                <th>Image</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td><strong>#{{ product.product_id }}</strong></td>
+                <td>
+                    <img src="/static/uploads/product_images/{{ product.image }}" width="60" height="60"
+                        class="rounded border" alt="{{ product.name }}">
+                </td>
+                <td><strong>{{ product.name }}</strong></td>
+                <td><span class="badge bg-light text-dark border">{{ product.category }}</span></td>
+                <td><small class="text-muted">{{ product.description[:50] }}{% if product.description|length > 50
+                        %}...{% endif %}</small></td>
+                <td><strong class="text-danger fs-6">₹{{ product.price }}</strong></td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <a class="btn btn-outline-primary" href="/admin/view-item/{{ product.product_id }}">View</a>
+                        <a class="btn btn-outline-secondary" href="/admin/update-item/{{ product.product_id }}">Edit</a>
+                        <a class="btn btn-outline-danger" href="/admin/delete-item/{{ product.product_id }}"
+                            onclick="return confirm('Delete this product?');">Delete</a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center py-5">
+                    <p class="text-muted fs-5">No products found.</p>
+                    <a href="/admin/add-item" class="btn btn-primary btn-sm">Add your first product</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

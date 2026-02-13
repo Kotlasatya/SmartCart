@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Product Details - SmartCart{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/admin.css">
+<style>
+    .product-detail {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .product-image {
+        text-align: center;
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+
+    .product-image img {
+        max-width: 100%;
+        max-height: 400px;
+        height: auto;
+        width: auto;
+        object-fit: contain;
+        border: 3px solid #FFD700;
+        border-radius: 10px;
+    }
+
+    .product-details h3 {
+        margin-top: 1.5rem;
+    }
+
+    .product-spec {
+        margin-bottom: 1.5rem;
+    }
+
+    .product-spec-label {
+        color: #B71C1C;
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+    }
+
+    .product-spec-value {
+        color: #333;
+        font-size: 18px;
+        margin-top: 0.3rem;
+    }
+
+    @media (max-width: 768px) {
+        .product-detail {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
+    <div class="container">
+        <a class="navbar-brand" href="/">⚡ SmartCart</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
+            aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="adminNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="/admin-dashboard">📊 Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/profile">👤 Profile</a></li>
+                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/admin-logout">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="page-header">
+        <h2>👁️ Product Details</h2>
+    </div>
+
+    <div class="card p-4">
+        <div class="product-detail">
+            <div class="product-image">
+                <img src="/static/uploads/product_images/{{ product.image }}" alt="{{ product.name }}">
+            </div>
+
+            <div class="product-details">
+                <h1 style="margin-top: 0;">{{ product.name }}</h1>
+
+                <div class="product-spec">
+                    <div class="product-spec-label">Product ID</div>
+                    <div class="product-spec-value">#{{ product.product_id }}</div>
+                </div>
+
+                <div class="product-spec">
+                    <div class="product-spec-label">Category</div>
+                    <div class="product-spec-value">
+                        <span style="background: #F0F0F0; padding: 0.4rem 0.8rem; border-radius: 4px;">{{
+                            product.category }}</span>
+                    </div>
+                </div>
+
+                <div class="product-spec">
+                    <div class="product-spec-label">Price</div>
+                    <div class="product-spec-value" style="color: #B71C1C; font-weight: bold; font-size: 28px;">₹{{
+                        product.price }}</div>
+                </div>
+
+                <div class="product-spec">
+                    <div class="product-spec-label">Description</div>
+                    <div class="product-spec-value">{{ product.description }}</div>
+                </div>
+
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <a class="btn btn-primary" href="/admin/update-item/{{ product.product_id }}"
+                        style="margin-bottom: 0;">✏️ Edit Product</a>
+                    <a class="btn btn-danger" href="/admin/delete-item/{{ product.product_id }}"
+                        style="margin-bottom: 0;" onclick="return confirm('Delete this product?');">🗑️ Delete
+                        Product</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="text-align: center; margin-top: 2rem;">
+        <a href="/admin-dashboard" style="color: #B71C1C; font-weight: 600; font-size: 16px;">← Back to Product List</a>
+    </div>
+</div>
+{% endblock %}

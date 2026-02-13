@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Payment - SmartCart{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/user.css">
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
+    <div class="container">
+        <a class="navbar-brand" href="/">⚡ SmartCart</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNav"
+            aria-controls="userNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="userNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="/user-home">🏠 Home</a></li>
+                <li class="nav-item">
+                    <a class="nav-link position-relative" href="/user/cart">
+                        🛒 Cart
+                        {% if cart_count %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ cart_count }}
+                        </span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/user-logout">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div style="max-width: 500px; margin: 0 auto; text-align: center;">
+        <div class="page-header">
+            <h2>💳 Complete Your Payment</h2>
+            <p>Secure payment processing via Razorpay</p>
+        </div>
+
+        <div class="card" style="padding: 2rem;">
+            <p style="font-size: 18px; margin-bottom: 2rem;"><strong>Total Amount:</strong> <span
+                    style="color: #B12704; font-size: 24px;">₹{{ amount }}</span></p>
+
+            <div style="text-align: left; margin-bottom: 2rem; background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+                <h4 style="margin-top: 0; color: #111;">Delivery Address</h4>
+                <p style="margin-bottom: 0; color: #555;">{{ user.address }}</p>
+            </div>
+
+            <button id="rzp-button" style="width: 100%; padding: 1rem; font-size: 16px;">Pay Now</button>
+            <p style="margin-top: 1rem; font-size: 12px; color: #666;">You will be redirected to Razorpay secure
+                checkout.</p>
+        </div>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    var options = {
+        "key": "{{ key_id }}",
+        "amount": "{{ amount * 100 }}",
+        "currency": "INR",
+        "name": "SmartCart",
+        "description": "Order Payment",
+        "order_id": "{{ order_id }}",
+        "handler": function (response) {
+            // Build a small form and POST to server for verification
+            var form = document.createElement("form");
+            form.method = "POST";
+            form.action = "/verify-payment";
+
+            var fields = {
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature
+            };
+
+            for (var name in fields) {
+                var input = document.createElement("input");
+                input.type = "hidden";
+                input.name = name;
+                input.value = fields[name];
+                form.appendChild(input);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        },
+        "prefill": {
+            // optionally prefill user info
+        }
+    };
+
+    var rzp = new Razorpay(options);
+    document.getElementById('rzp-button').onclick = function (e) {
+        rzp.open();
+        e.preventDefault();
+    }
+</script>
+{% endblock %}

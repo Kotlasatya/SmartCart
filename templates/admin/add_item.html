@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Add Product - SmartCart{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/admin.css">
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
+    <div class="container">
+        <a class="navbar-brand" href="/">⚡ SmartCart</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
+            aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="adminNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="/admin-dashboard">📊 Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/profile">👤 Profile</a></li>
+                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/admin-logout">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div style="max-width: 700px; margin: 0 auto;">
+        <div class="page-header">
+            <h2>➕ Add New Product</h2>
+            <p>Fill in the details to add a new product to your inventory</p>
+        </div>
+
+        <form method="POST" action="/admin/add-item" enctype="multipart/form-data">
+            <label for="name">Product Name *</label>
+            <input type="text" id="name" name="name" placeholder="Enter product name" required>
+
+            <label for="description">Description *</label>
+            <textarea id="description" name="description" placeholder="Enter detailed product description"
+                required></textarea>
+
+            <label for="category">Category *</label>
+            <input type="text" id="category" name="category" placeholder="e.g., Electronics, Clothing, etc." required>
+
+            <label for="price">Price (₹) *</label>
+            <input type="number" id="price" name="price" step="0.01" placeholder="Enter product price" required>
+
+            <label for="image">Product Image *</label>
+            <input type="file" id="image" name="image" accept="image/*" required>
+            <small style="color: #666; display: block; margin-top: -0.8rem; margin-bottom: 1rem;">Accepted formats: JPG,
+                PNG, WebP (Max 5MB)</small>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">✓ Add Product</button>
+        </form>
+
+        <div class="card" style="text-align: center; margin-top: 2rem;">
+            <a href="/admin-dashboard" style="color: #B71C1C; font-weight: 600; font-size: 16px;">← Back to
+                Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

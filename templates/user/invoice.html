@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Invoice - SmartCart{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/user.css">
+<style>
+    .invoice-box {
+        max-width: 800px;
+        margin: auto;
+        padding: 30px;
+        border: 1px solid #eee;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        font-size: 16px;
+        line-height: 24px;
+        font-family: inherit;
+        color: #555;
+        background: #fff;
+    }
+
+    .header {
+        text-align: center;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f9f9f9;
+        color: #333;
+    }
+
+    @media print {
+
+        header,
+        footer,
+        nav,
+        .navbar,
+        .no-print {
+            display: none !important;
+        }
+
+        .invoice-box {
+            box-shadow: none;
+            border: 0;
+            width: 100%;
+            max-width: none;
+        }
+
+        .main-content {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #fff;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
+    <div class="container">
+        <a class="navbar-brand" href="/">⚡ SmartCart</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNav"
+            aria-controls="userNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="userNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="/user-home">🏠 Home</a></li>
+                <li class="nav-item">
+                    <a class="nav-link position-relative" href="/user/cart">
+                        🛒 Cart
+                        {% if cart_count %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ cart_count }}
+                        </span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/user-logout">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="invoice-box">
+        <div class="header">
+            <h2>SmartCart Invoice</h2>
+            <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+            <p><strong>Date:</strong> {{ order.created_at }}</p>
+        </div>
+
+        <h3>Customer Details</h3>
+        <p><strong>Name:</strong> {{ user.name }}</p>
+        <p><strong>Address:</strong> {{ user.address }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+
+        <h3>Items</h3>
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Price (₹)</th>
+            </tr>
+
+            {% for it in items %}
+            <tr>
+                <td>{{ it.product_name }}</td>
+                <td>{{ it.quantity }}</td>
+                <td>{{ it.price }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <h3 style="text-align:right;">Grand Total: ₹{{ order.amount }}</h3>
+    </div>
+
+    <div style="text-align: center; margin-top: 2rem; margin-bottom: 2rem;" class="no-print">
+        <button onclick="window.print()" class="btn btn-primary" style="width: auto; padding: 0.5rem 1rem;">🖨️ Print
+            Invoice</button>
+        <a href="/user/my-orders" class="btn btn-secondary"
+            style="display: inline-block; width: auto; padding: 0.5rem 1rem;">Back to Orders</a>
+    </div>
+</div>
+{% endblock %}
