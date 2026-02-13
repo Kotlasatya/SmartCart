@@ -36,6 +36,74 @@
         align-items: center;
         margin-bottom: 0;
     }
+
+    /* Match User Side Button Styles for Search Section */
+    .btn-search {
+        background-color: #FFD814 !important;
+        border-color: #FCD200 !important;
+        color: #111 !important;
+    }
+
+    .btn-search:hover {
+        background-color: #F7CA00 !important;
+    }
+
+    .btn-filter {
+        background: linear-gradient(120deg, #0f172a, #1f2937) !important;
+        color: #fff !important;
+        border: 1px solid transparent !important;
+    }
+
+    .btn-filter:hover {
+        opacity: 0.95;
+    }
+
+    /* Reset form styles for the toolbar to avoid admin global form styles */
+    .search-section form {
+        background: none !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+    }
+
+    /* Match User Side Input Styles for Search Section with increased specificity */
+    div.search-section .input-group>.form-control,
+    div.search-section .input-group>.form-select {
+        border-radius: 999px !important;
+        border: 1px solid rgba(148, 163, 184, 0.8) !important;
+        padding: 0.6rem 1rem;
+        box-shadow: none !important;
+        height: auto;
+    }
+
+    div.search-section .input-group>.form-control:focus,
+    div.search-section .input-group>.form-select:focus {
+        border-color: #38bdf8 !important;
+        box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.85) !important;
+    }
+
+    /* Fix rounded corners for input group - Ensure seamless pill shape */
+    div.search-section .input-group>.form-control,
+    div.search-section .input-group>.form-select {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        border-right: none !important;
+        /* Merge with button */
+    }
+
+    div.search-section .input-group>.btn {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+        border-top-right-radius: 999px !important;
+        /* Pill shape right */
+        border-bottom-right-radius: 999px !important;
+        padding: 0.6rem 1.5rem !important;
+        /* Match input padding */
+        margin-left: -1px;
+        /* overlap border */
+        height: auto;
+    }
 </style>
 {% endblock %}
 
@@ -73,24 +141,28 @@
 
         <div class="product-toolbar row g-3">
             <div class="col-md-6">
-                <form method="GET" action="/admin-dashboard" class="d-flex gap-2">
-                    <input type="text" name="search" class="form-control" placeholder="Search products..."
-                        value="{{ request.args.get('search', '') }}">
-                    <button type="submit" class="btn btn-primary">Search</button>
+                <form method="GET" action="/admin-dashboard" class="toolbar-form">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Search products..."
+                            value="{{ request.args.get('search', '') }}">
+                        <button type="submit" class="btn btn-search">Search</button>
+                    </div>
                 </form>
             </div>
             <div class="col-md-6">
-                <form method="GET" action="/admin-dashboard" class="d-flex gap-2 align-items-center">
-                    <select name="category" class="form-select">
-                        <option value="">All Categories</option>
-                        {% for cat in categories %}
-                        <option value="{{ cat.category }}" {% if request.args.get('category')==cat.category %} selected
-                            {% endif %}>
-                            {{ cat.category }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                    <button type="submit" class="btn btn-secondary">Filter</button>
+                <form method="GET" action="/admin-dashboard" class="toolbar-form">
+                    <div class="input-group">
+                        <select name="category" class="form-select">
+                            <option value="">All Categories</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.category }}" {% if request.args.get('category')==cat.category %}
+                                selected {% endif %}>
+                                {{ cat.category }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-filter">Filter</button>
+                    </div>
                 </form>
             </div>
         </div>

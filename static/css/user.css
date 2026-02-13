@@ -24,6 +24,14 @@ body {
     line-height: 1.6;
 }
 
+/* GLOBAL: Remove underline from all links */
+a,
+a:hover,
+a:focus,
+a:active {
+    text-decoration: none !important;
+}
+
 /* ===== HEADER & NAVIGATION ===== */
 header,
 .navbar {
@@ -120,7 +128,7 @@ header .logo:hover,
 .btn-link:hover {
     background-color: rgba(231, 221, 175, 0.15);
     color: #FFFFFF;
-    text-decoration: underline;
+    text-decoration: none !important;
 }
 
 /* ===== STEEL BANNER ===== */
@@ -646,7 +654,7 @@ footer a {
 }
 
 footer a:hover {
-    text-decoration: underline;
+    text-decoration: none !important;
 }
 
 /* =====================================================================

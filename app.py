@@ -680,13 +680,16 @@ def admin_orders():
     cursor = conn.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT o.order_id, o.user_id, o.amount, 
+        SELECT DISTINCT o.order_id, o.user_id, o.amount, 
                o.payment_status, o.order_status, o.created_at,
                u.name AS username
         FROM orders o
         LEFT JOIN users u ON o.user_id = u.user_id
+        JOIN order_items oi ON o.order_id = oi.order_id
+        JOIN products p ON oi.product_id = p.product_id
+        WHERE p.admin_id = %s
         ORDER BY o.created_at DESC
-    """)
+    """, (session['admin_id'],))
 
     orders = cursor.fetchall()
     cursor.close()
