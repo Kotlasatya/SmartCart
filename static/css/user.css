@@ -329,7 +329,6 @@ textarea {
 .item-card:hover,
 .product-card:hover {
     box-shadow: 0 8px 24px rgba(115, 175, 111, 0.2);
-    transform: translateY(-4px);
     border-color: #73AF6F;
 }
 
@@ -369,7 +368,6 @@ textarea {
 .product-item:hover {
     box-shadow: 0 12px 32px rgba(115, 175, 111, 0.18);
     border-color: #73AF6F;
-    transform: translateY(-6px);
 }
 
 .product-item-link {
@@ -750,9 +748,7 @@ header .logo,
     backdrop-filter: blur(10px);
 }
 
-.product-item:hover {
-    transform: translateY(-8px) scale(1.01);
-}
+
 
 .product-image {
     height: 230px;
