@@ -11,6 +11,7 @@ DB_NAME = "smartcart_db"
 MAIL_SERVER = 'smtp.gmail.com'
 MAIL_PORT = 587
 MAIL_USE_TLS = True
+MAIL_USE_SSL = False
 MAIL_USERNAME = 'satyakotla398@gmail.com'
 MAIL_PASSWORD = 'fkdi ftxm lcsj ykdh'
 
