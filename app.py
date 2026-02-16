@@ -1,4 +1,4 @@
-import email
+# import email  <-- Commented out to prevent shadowing, or just removed if unused.
 from flask import Flask, render_template, request, redirect, session, flash, make_response
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from flask_mail import Mail, Message
@@ -79,12 +79,14 @@ def admin_signup():
 
     # POST → Process signup
     name = request.form['name']
-    email = request.form['email']
+    admin_email = request.form['email'].strip()
+
+    print(f"DEBUG: Admin Signup - Email: {admin_email}") # Debug log
 
     # 1️⃣ Check if admin email already exists
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT admin_id FROM admin WHERE email=?", (email,))
+    cursor.execute("SELECT admin_id FROM admin WHERE email=?", (admin_email,))
     existing_admin = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -95,7 +97,7 @@ def admin_signup():
 
     # 2️⃣ Save user input temporarily in session
     session['signup_name'] = name
-    session['signup_email'] = email
+    session['signup_email'] = admin_email
 
     # 3️⃣ Generate OTP and store in session
     otp = random.randint(100000, 999999)
@@ -105,7 +107,7 @@ def admin_signup():
     message = Message(
         subject="SmartCart Admin OTP",
         sender=config.MAIL_USERNAME,
-        recipients=[email]
+        recipients=[admin_email]
     )
     message.body = f"Your OTP for SmartCart Admin Registration is: {otp}"
     mail.send(message)
@@ -172,7 +174,7 @@ def admin_login():
         return render_template("admin/admin_login.html")
 
     # POST → Validate login
-    email = request.form['email']
+    admin_email = request.form['email'].strip()
     password = request.form['password']
 
     # Step 1: Check if admin email exists
@@ -180,7 +182,7 @@ def admin_login():
     cursor = conn.cursor()
 
     # Use parameterized query to prevent SQL injection
-    cursor.execute("SELECT * FROM admin WHERE email=?", (email,))
+    cursor.execute("SELECT * FROM admin WHERE email=?", (admin_email,))
     admin = cursor.fetchone()
 
     cursor.close()
@@ -223,12 +225,12 @@ s = URLSafeTimedSerializer(app.secret_key)
 # =================================================================
 @app.route('/admin/send_reset_link', methods=['POST'])
 def send_reset_link():
-    email = request.form['email']
+    admin_email = request.form['email'].strip()
 
     # Check if email exists in admin table
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM admin WHERE email = ?", (email,))
+    cursor.execute("SELECT * FROM admin WHERE email = ?", (admin_email,))
     admin = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -238,10 +240,10 @@ def send_reset_link():
         return redirect('/admin-signup')
     
     # Generate token with email and salt
-    token = s.dumps(email, salt='password-reset-salt')
+    token = s.dumps(admin_email, salt='password-reset-salt')
     link = f"http://localhost:5000/admin/reset_password/{token}"
 
-    msg = Message("Password Reset Request", sender="satyakotla398@gmail.com", recipients=[email])
+    msg = Message("Password Reset Request", sender="satyakotla398@gmail.com", recipients=[admin_email])
     msg.body = f"Click the link to reset your password: {link}"
     mail.send(msg)
 
@@ -609,7 +611,7 @@ def admin_profile_update():
 
     # 1️⃣ Get form data
     name = request.form['name']
-    email = request.form['email']
+    admin_email = request.form['email'].strip()
     new_password = request.form['password']
     new_image = request.files['profile_image']
 
@@ -653,7 +655,7 @@ def admin_profile_update():
         UPDATE admin
         SET name=?, email=?, password=?, profile_image=?
         WHERE admin_id=?
-    """, (name, email, hashed_password, final_image_name, admin_id))
+    """, (name, admin_email, hashed_password, final_image_name, admin_id))
 
     conn.commit()
     cursor.close()
@@ -661,7 +663,7 @@ def admin_profile_update():
 
     # Update session name for UI consistency
     session['admin_name'] = name  
-    session['admin_email'] = email
+    session['admin_email'] = admin_email
 
     flash("Profile updated successfully!", "success")
     return redirect('/admin/profile')
@@ -768,12 +770,14 @@ def user_signup():
 
     # POST → Process signup
     name = request.form['name']
-    email = request.form['email']
+    user_email = request.form['email'].strip()
+
+    print(f"DEBUG: User Signup - Email: {user_email}") # Debug log
 
     # 1️⃣ Check if admin email already exists
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT user_id FROM users WHERE email=?", (email,))
+    cursor.execute("SELECT user_id FROM users WHERE email=?", (user_email,))
     existing_user = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -784,7 +788,7 @@ def user_signup():
 
     # 2️⃣ Save user input temporarily in session
     session['signup_name'] = name
-    session['signup_email'] = email
+    session['signup_email'] = user_email
 
     # 3️⃣ Generate OTP and store in session
     otp = random.randint(100000, 999999)
@@ -795,7 +799,7 @@ def user_signup():
         message = Message(
             subject="SmartCart User OTP",
             sender=config.MAIL_USERNAME,
-            recipients=[email]
+            recipients=[user_email]
         )
         message.body = f"Your OTP for SmartCart User Registration is: {otp}"
         mail.send(message)
@@ -861,7 +865,7 @@ def user_login():
         return render_template("user/user_login.html")
 
     # POST → Validate login
-    email = request.form['email']
+    user_email = request.form['email'].strip()
     password = request.form['password']
 
     # Step 1: Check if user email exists
@@ -869,7 +873,7 @@ def user_login():
     cursor = conn.cursor()
 
     # Use parameterized query to prevent SQL injection
-    cursor.execute("SELECT * FROM users WHERE email=?", (email,))
+    cursor.execute("SELECT * FROM users WHERE email=?", (user_email,))
     admin = cursor.fetchone()
 
     cursor.close()
@@ -912,12 +916,12 @@ s = URLSafeTimedSerializer(app.secret_key)
 # =================================================================
 @app.route('/user/send_reset_link', methods=['POST'])
 def user_send_reset_link():
-    email = request.form['email']
+    user_email = request.form['email'].strip()
 
     # Check if email exists in user table
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    cursor.execute("SELECT * FROM users WHERE email = ?", (user_email,))
     user = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -927,10 +931,10 @@ def user_send_reset_link():
         return redirect('/user-signup')
     
     # Generate token with email and salt
-    token = s.dumps(email, salt='password-reset-salt')
+    token = s.dumps(user_email, salt='password-reset-salt')
     link = f"http://localhost:5000/user/reset_password/{token}"
 
-    msg = Message("Password Reset Request", sender="satyakotla398@gmail.com", recipients=[email])
+    msg = Message("Password Reset Request", sender="satyakotla398@gmail.com", recipients=[user_email])
     msg.body = f"Click the link to reset your password: {link}"
     mail.send(msg)
 
