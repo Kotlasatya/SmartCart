@@ -190,7 +190,9 @@ def admin_login():
         return redirect('/admin-login')
 
     # Step 2: Compare entered password with hashed password
-    stored_hashed_password = admin['password'].encode('utf-8')
+    stored_hashed_password = admin['password']
+    if isinstance(stored_hashed_password, str):
+        stored_hashed_password = stored_hashed_password.encode('utf-8')
 
     if not bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password):
         flash("Incorrect password! Try again.", "danger")
@@ -295,7 +297,7 @@ def admin_dashboard():
 
 
     # 1️⃣ Fetch category list for dropdown
-    cursor.execute("SELECT DISTINCT category FROM products WHERE admin_id = %s", (session['admin_id'],))
+    cursor.execute("SELECT DISTINCT category FROM products WHERE admin_id = ?", (session['admin_id'],))
     categories = cursor.fetchall()
 
     # 2️⃣ Build dynamic query based on filters
@@ -580,7 +582,7 @@ def admin_profile():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM admin WHERE admin_id = %s", (admin_id,))
+    cursor.execute("SELECT * FROM admin WHERE admin_id = ?", (admin_id,))
     admin = cursor.fetchone()
 
     cursor.close()
@@ -614,7 +616,7 @@ def admin_profile_update():
     cursor = conn.cursor()
 
     # 2️⃣ Fetch old admin data
-    cursor.execute("SELECT * FROM admin WHERE admin_id = %s", (admin_id,))
+    cursor.execute("SELECT * FROM admin WHERE admin_id = ?", (admin_id,))
     admin = cursor.fetchone()
 
     old_image_name = admin['profile_image']
@@ -873,7 +875,9 @@ def user_login():
         return redirect('/user-login')
 
     # Step 2: Compare entered password with hashed password
-    stored_hashed_password = admin['password'].encode('utf-8')
+    stored_hashed_password = admin['password']
+    if isinstance(stored_hashed_password, str):
+        stored_hashed_password = stored_hashed_password.encode('utf-8')
 
     if not bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password):
         flash("Incorrect password! Try again.", "danger")
@@ -1214,7 +1218,7 @@ def user_pay():
     # Fetch user details including address
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE user_id=%s", (session['user_id'],))
+    cursor.execute("SELECT * FROM users WHERE user_id=?", (session['user_id'],))
     user = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -1405,7 +1409,7 @@ def download_invoice(order_id):
     order = cursor.fetchone()
 
     # Fetch user details for address
-    cursor.execute("SELECT * FROM users WHERE user_id=%s", (session['user_id'],))
+    cursor.execute("SELECT * FROM users WHERE user_id=?", (session['user_id'],))
     user = cursor.fetchone()
 
     cursor.execute("SELECT * FROM order_items WHERE order_id=?", (order_id,))
