@@ -791,13 +791,17 @@ def user_signup():
     session['otp'] = otp
 
     # 4️⃣ Send OTP Email
-    message = Message(
-        subject="SmartCart User OTP",
-        sender=config.MAIL_USERNAME,
-        recipients=[email]
-    )
-    message.body = f"Your OTP for SmartCart User Registration is: {otp}"
-    mail.send(message)
+    try:
+        message = Message(
+            subject="SmartCart User OTP",
+            sender=config.MAIL_USERNAME,
+            recipients=[email]
+        )
+        message.body = f"Your OTP for SmartCart User Registration is: {otp}"
+        mail.send(message)
+    except Exception as e:
+        flash(f"Error sending email: {str(e)}", "danger")
+        return redirect('/user-signup')
 
     flash("OTP sent to your email!", "success")
     return redirect('/verify-otp-user')
