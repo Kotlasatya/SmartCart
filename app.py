@@ -269,7 +269,7 @@ def reset_password(token):
         hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("UPDATE admin SET password = %s WHERE email = ?", (hashed_password, email))
+        cursor.execute("UPDATE admin SET password = ? WHERE email = ?", (hashed_password, email))
         conn.commit()
         cursor.close()
         conn.close()
@@ -739,7 +739,7 @@ def update_order_status(order_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("UPDATE orders SET order_status=%s WHERE order_id=?",
+    cursor.execute("UPDATE orders SET order_status=? WHERE order_id=?",
                     (new_status, order_id))
 
     conn.commit()
