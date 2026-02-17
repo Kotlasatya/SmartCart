@@ -42,12 +42,7 @@
         <p>Review your selected items before checkout</p>
     </div>
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% for category, message in messages %}
-    <div class="flash-message flash-{{ category }}">{{ message }}</div>
-    {% endfor %}
-    {% endwith %}
+
 
     {% if not cart %}
     <div class="products-empty text-center py-5">
