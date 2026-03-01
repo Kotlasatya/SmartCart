@@ -13,6 +13,7 @@ from utils.pdf_generator import generate_pdf
 import sqlite3
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # Set secret key for session management
 app.secret_key = config.SECRET_KEY
@@ -829,7 +830,7 @@ def verify_otp_user():
     # Compare OTP
     if str(session.get('otp')) != str(user_otp):
         flash("Invalid OTP. Try again!", "danger")
-        return redirect('/user/verify-otp')
+        return redirect('/verify-otp-user')
 
     # Hash password using bcrypt
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
@@ -932,7 +933,7 @@ def user_send_reset_link():
     
     # Generate token with email and salt
     token = s.dumps(user_email, salt='password-reset-salt')
-    link = f"http://localhost:5000/user/reset_password/{token}"
+    link = f"{request.host_url.rstrip('/')}/user/reset_password/{token}"
 
     msg = Message("Password Reset Request", sender="satyakotla398@gmail.com", recipients=[user_email])
     msg.body = f"Click the link to reset your password: {link}"
@@ -960,7 +961,7 @@ def user_reset_password(token):
         hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("UPDATE users SET password = %s WHERE email = ?", (hashed_password, email))
+        cursor.execute("UPDATE users SET password = ? WHERE email = ?", (hashed_password, email))
         conn.commit()
         cursor.close()
         conn.close()
@@ -1241,24 +1242,6 @@ def user_pay():
     )
 
 
-# =================================================================
-# ROUTE 18: TEMP SUCCESS PAGE (Verification in Day 13)
-# =================================================================
-@app.route('/payment-success')
-def payment_success():
-
-    payment_id = request.args.get('payment_id')
-    order_id = request.args.get('order_id')
-
-    if not payment_id:
-        flash("Payment failed!", "danger")
-        return redirect('/user/cart')
-
-    return render_template(
-        "user/payment_success.html",
-        payment_id=payment_id,
-        order_id=order_id
-    )
 
 import traceback
 
@@ -1451,5 +1434,4 @@ def download_invoice(order_id):
 # Run the Flask app
 # -------------------------------
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)

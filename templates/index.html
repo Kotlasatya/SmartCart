@@ -1,75 +1,424 @@
 {% extends "base.html" %}
 
-{% block title %}SmartCart - Iron-Powered Shopping{% endblock %}
+{% block title %}SmartCart Shopping{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/admin.css">
 <style>
-    .hero-section {
-        background:darkslategrey;
-        color: white;
-        padding: 4rem 2rem;
-        border-radius: 10px;
+    /* =========================================
+       HERO & BODY STYLES (Restored & Fixed)
+       ========================================= */
+
+    /* Reset base container padding for this page to maximize space */
+    .content-container {
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* Default to full height for desktop centering */
+        min-height: calc(100vh - 160px);
+        /* Approx nav+footer height */
+        max-width: 100% !important;
+        overflow-x: hidden;
+        /* Ensure this container doesn't scroll */
+    }
+
+    /* MAIN WRAPPER */
+    .hero-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 1200px;
+        gap: 4rem;
+        /* Spacing between text and card */
+        padding: 0 2rem;
+        flex-wrap: wrap;
+        /* Allow wrapping on smaller screens */
+    }
+
+    /* LEFT SIDE: TEXT */
+    .hero-text {
+        flex: 1;
+        min-width: 300px;
+        text-align: left;
+    }
+
+    .hero-text h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+        color: var(--white);
+        text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+    }
+
+    .hero-text span {
+        color: var(--gold);
+        display: block;
+    }
+
+    .hero-text p {
+        font-size: 1.1rem;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        opacity: 0.9;
+        font-weight: 300;
+        max-width: 500px;
     }
 
-    .hero-title {
-        font-size: 3rem;
-        font-weight: bold;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    /* BUTTONS */
+    .hero-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
     }
 
-    .feature-card {
+    /* Common Button Styles */
+    .btn-primary,
+    .btn-outline {
+        padding: 12px 28px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background-color: var(--white);
+        color: var(--light-blue);
+        border: 2px solid var(--white);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--gold);
+        color: var(--white);
+        border-color: var(--gold);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 2px solid var(--white);
+        color: var(--white);
+    }
+
+    .btn-outline:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: var(--gold);
+        color: var(--gold);
+        transform: translateY(-2px);
+    }
+
+    /* RIGHT SIDE: CARD */
+    .hero-card {
+        flex: 1;
+        min-width: 300px;
+        max-width: 450px;
+        background-color: var(--white);
+        color: var(--light-blue);
+        padding: 2.5rem;
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        position: relative;
+        /* Decoration line */
+        border-top: 4px solid var(--gold);
+    }
+
+    .hero-card h2 {
+        color: var(--light-blue);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .hero-card p {
+        color: #4a5568;
+        /* Readable dark grey */
+        font-size: 1rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* =========================================
+       NAVBAR HAMBURGER STYLES
+       ========================================= */
+    .hamburger {
+        display: none;
+        /* Hidden on desktop */
+        flex-direction: column;
+        justify-content: space-between;
+        width: 30px;
+        height: 21px;
+        background: transparent;
         border: none;
-        transition: transform 0.3s ease;
-        height: 100%;
-        background: white;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        padding: 0;
+        z-index: 1001;
     }
 
-    .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    .hamburger span {
+        width: 100%;
+        height: 3px;
+        background-color: var(--white);
+        border-radius: 3px;
+        transition: all 0.3s ease;
+    }
+
+    /* Desktop Nav Links */
+    .nav-links {
+        display: flex;
+        gap: 20px;
+    }
+
+    .nav-links a {
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    /* =========================================
+       RESPONSIVE STYLES
+       ========================================= */
+
+    /* Tablet & Smaller Desktop */
+    @media (max-width: 992px) {
+        .hero-text h1 {
+            font-size: 2.8rem;
+        }
+    }
+
+    /* Mobile (Standard) */
+    @media (max-width: 768px) {
+
+        /* NAVBAR MOBILE OVERRIDES */
+        nav>div {
+            position: relative;
+            flex-direction: row !important;
+            /* Keep Logo and Burger side by side */
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+            /* Allow menu to drop to next line */
+        }
+
+        .hamburger {
+            display: flex;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Dropdown Menu - IN FLOW (Pushes content down) */
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            /* Full width of container */
+            position: static;
+            /* In the document flow */
+            background-color: var(--light-blue);
+            padding: 1.5rem 0 0 0;
+            /* Top padding only */
+            gap: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 15px;
+            /* Spacing from logo */
+            box-shadow: none;
+            /* Flat look */
+        }
+
+        .nav-links.active {
+            display: flex;
+        }
+
+        .nav-links a {
+            display: block;
+            width: auto;
+            margin: 0 3rem;
+            /* More margin = narrower button */
+            background-color: var(--light-green);
+            color: var(--white);
+            padding: 10px 15px;
+            /* Smaller padding */
+            text-align: center;
+            border-radius: 8px;
+            /* Slightly rounded, not full pill */
+            font-size: 0.95rem;
+            /* Smaller Font */
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--white);
+            /* Thinner border */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* BODY LAYOUT ADJUSTMENTS (Mobile Stacking) */
+        .content-container {
+            display: block;
+            padding: 2rem 1.5rem !important;
+            height: auto;
+        }
+
+        .hero-wrapper {
+            flex-direction: column;
+            gap: 3rem;
+            padding: 0;
+        }
+
+        .hero-text {
+            text-align: center;
+            width: 100%;
+            min-width: auto;
+        }
+
+        .hero-text h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .hero-text p {
+            font-size: 1rem;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        .hero-buttons {
+            justify-content: center;
+            width: 100%;
+        }
+
+        .btn-primary,
+        .btn-outline {
+            width: 100%;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .hero-card {
+            width: 100%;
+            max-width: 100%;
+            min-width: unset;
+            margin-top: 1rem;
+            padding: 2rem;
+        }
+    }
+
+    /* =========================================
+       ULTRA SMALL MOBILE (320px) FIX
+       ========================================= */
+    @media (max-width: 374px) {
+        .content-container {
+            padding: 1rem 1rem !important;
+        }
+
+        .hero-text h1 {
+            font-size: 1.8rem;
+            line-height: 1.2;
+        }
+
+        .hero-text p {
+            font-size: 0.9rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .btn-primary,
+        .btn-outline {
+            padding: 10px 15px;
+            font-size: 0.85rem;
+        }
+
+        .hero-card {
+            padding: 1.5rem 1rem;
+        }
+
+        .hero-card h2 {
+            font-size: 1.2rem;
+        }
+
+        .hero-card p {
+            font-size: 0.85rem;
+        }
+
+        /* Force Logo to stay on one line */
+        nav a {
+            white-space: nowrap !important;
+            font-size: 1.4rem !important;
+        }
+
+        .hamburger {
+            width: 25px;
+            height: 18px;
+        }
     }
 </style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+
+        // Adjust top position dynamically if needed, though fixed 60px is usually safe
+        const nav = document.querySelector('nav');
+        if (navLinks.classList.contains('active')) {
+            navLinks.style.top = nav.offsetHeight + 'px';
+        }
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<!-- Override navbar to show specific links for landing page if needed, or keep default -->
-<nav class="navbar navbar-expand-lg navbar-dark mb-5 py-4" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <div class="d-flex">
-            <a href="/admin-login" class="btn btn-outline-light me-2">Admin Login</a>
-            <a href="/user-login" class="btn btn-light">User Login</a>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <!-- Logo -->
+        <a href="/">⚡ SmartCart</a>
+
+        <!-- Hamburger Menu Button -->
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <!-- Links -->
+        <div class="nav-links">
+            <a href="/admin-login">Admin</a>
+            <a href="/user-login">User</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="text-center mb-5">
-    <div class="hero-section">
-        <h1 class="hero-title">⚡ Welcome to SmartCart</h1>
-        <p class="lead mb-4">Powered by Satya Vardhan Reddy</p>
-        <div class="d-flex justify-content-center gap-3">
-            <a href="/user-login" class="btn btn-light btn-lg px-4">Start Shopping</a>
-            <a href="/admin-login" class="btn btn-outline-light btn-lg px-4">Admin Access</a>
+<div class="hero-wrapper">
+    <!-- Left Column: Impactful Text -->
+    <div class="hero-text">
+        <h1>SmartCart <br> <span>Shopping.</span></h1>
+        <p>Experience the future of e-commerce. <br> Fast, secure, and powered by Satya Vardhan Reddy.</p>
+
+        <div class="hero-buttons">
+            <a href="/user-login" class="btn-primary">Start Shopping</a>
+            <a href="/admin-login" class="btn-outline">Admin Panel</a>
         </div>
     </div>
 
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card feature-card p-4">
-                <div class="card-body">
-                    <h2 class="card-title text-primary mb-3">Manage Your Products with SmartCart Efficiency</h2>
-                    <p class="card-text text-muted">SmartCart is a powerful e-commerce management system built with
-                        cutting-edge technology. Experience seamless inventory management, secure transactions, and a
-                        user-friendly interface.</p>
-                </div>
-            </div>
-        </div>
+    <!-- Right Column: Info Card -->
+    <div class="hero-card">
+        <h2>Efficiency First</h2>
+        <p>SmartCart is designed to streamline your inventory and sales process.
+            With real-time tracking and a user-friendly interface, managing your store has never been easier.</p>
     </div>
 </div>
 {% endblock %}

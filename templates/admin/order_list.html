@@ -3,70 +3,311 @@
 {% block title %}All Orders - SmartCart Admin{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/admin.css">
+<!-- Link to Admin CSS for consistent styling -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    /* NAVBAR MOBILE OVERRIDES (Sync with admin_signup) */
+    @media (max-width: 768px) {
+        nav>div {
+            position: relative;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--white);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        nav a {
+            white-space: nowrap !important;
+        }
+
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            position: static;
+            background-color: var(--light-blue);
+            padding: 1.5rem 0 0 0;
+            gap: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 15px;
+        }
+
+        .nav-links.active {
+            display: flex;
+        }
+
+        .nav-links a {
+            display: block;
+            margin: 0 3rem;
+            background-color: var(--light-green);
+            color: var(--white) !important;
+            padding: 10px 15px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 1px solid var(--white);
+        }
+    }
+
+    @media (max-width: 374px) {
+        nav a {
+            font-size: 1.4rem !important;
+        }
+
+        .hamburger {
+            width: 25px;
+            height: 18px;
+        }
+    }
+
+    @media (min-width: 769px) {
+        .hamburger {
+            display: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            font-weight: 500;
+        }
+    }
+
+    /* Table Styling */
+    .table-container {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        margin-bottom: 30px;
+        border: 1px solid #e2e8f0;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        text-align: left;
+        padding: 16px;
+        background: #f1f5f9;
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    td {
+        padding: 16px;
+        border-bottom: 1px solid #e2e8f0;
+        color: #334155;
+        font-size: 0.95rem;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    tr:hover td {
+        background-color: #f8fafc;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-confirmed {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-shipped {
+        background: #e0f2fe;
+        color: #075985;
+    }
+
+    .status-delivered {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .status-packed {
+        background: #f3e8ff;
+        color: #6b21a8;
+    }
+
+    .view-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        background-color: var(--light-blue);
+        color: var(--white);
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+
+    .view-btn:hover {
+        background-color: var(--light-green);
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        font-weight: 500;
+        margin-top: 10px;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        color: var(--light-blue);
+    }
+
+    /* Responsive Table Table Fix for Mobile */
+    @media (max-width: 600px) {
+        .table-container {
+            overflow-x: auto;
+        }
+
+        td,
+        th {
+            padding: 12px 8px;
+            font-size: 0.85rem;
+        }
+    }
+</style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
-            aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <a href="/">⚡ SmartCart</a>
+
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
-        <div class="collapse navbar-collapse" id="adminNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="/admin-dashboard">📊 Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="/admin/profile">👤 Profile</a></li>
-                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/admin-logout">🚪 Logout</a></li>
-            </ul>
+
+        <div class="nav-links">
+            <a href="/admin-dashboard">📊 Dashboard</a>
+            <a href="/admin/profile">👤 Profile</a>
+            <a href="/admin-logout">🚪 Logout</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <div class="page-header">
+<div class="admin-container">
+    <div class="admin-header">
         <h2>📦 All Customer Orders</h2>
-        <p>Manage and track all customer orders</p>
+        <p>Manage and track all customer orders efficiently</p>
     </div>
 
-    <div class="card p-3">
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Order ID</th>
-                        <th>User</th>
-                        <th>Amount</th>
-                        <th>Payment</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th>View</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in orders %}
-                    <tr>
-                        <td>{{ order.order_id }}</td>
-                        <td>{{ order.username }}</td>
-                        <td>₹{{ order.amount }}</td>
-                        <td>{{ order.payment_status }}</td>
-                        <td>{{ order.order_status }}</td>
-                        <td>{{ order.created_at }}</td>
-                        <td>
-                            <a class="btn btn-primary btn-sm" href="/admin/order/{{ order.order_id }}">View</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><strong>#{{ order.order_id }}</strong></td>
+                    <td>{{ order.username }}</td>
+                    <td>₹{{ order.amount }}</td>
+                    <td>{{ order.payment_status }}</td>
+                    <td>
+                        <span class="status-badge 
+                            {% if order.order_status == 'Pending' %}status-pending
+                            {% elif order.order_status == 'Confirmed' %}status-confirmed
+                            {% elif order.order_status == 'Packed' %}status-packed
+                            {% elif order.order_status == 'Shipped' %}status-shipped
+                            {% elif order.order_status == 'Delivered' %}status-delivered
+                            {% endif %}">
+                            {{ order.order_status }}
+                        </span>
+                    </td>
+                    <td>{{ order.created_at }}</td>
+                    <td>
+                        <a href="/admin/order/{{ order.order_id }}" class="view-btn">View Details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
-    <div style="margin-top: 2rem; text-align: center;">
-        <a href="/admin-dashboard" class="btn btn-secondary">← Back to Dashboard</a>
-    </div>
+    <a href="/admin-dashboard" class="back-link">← Back to Dashboard</a>
 </div>
 {% endblock %}

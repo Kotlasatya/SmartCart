@@ -3,115 +3,172 @@
 {% block title %}My Orders - SmartCart{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/user.css">
+<!-- Link to User CSS for consistent styling -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
 <style>
-    .order-container {
-        width: 100%;
-        max-width: 800px;
-        margin: auto;
+    /* Page Specific Refinements */
+    .orders-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
     }
 
     .order-card {
-        border: 1px solid #ddd;
-        padding: 15px;
-        margin-bottom: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
         background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
     }
 
-    .order-card h3 {
-        margin: 0 0 10px 0;
+    .order-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        border-color: var(--light-blue);
     }
 
-    .order-info {
-        line-height: 1.5;
+    .status-paid {
+        background: #dcfce7;
+        color: #166534;
     }
 
-    .view-btn {
-        padding: 8px 12px;
-        background-color: #0077ff;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        display: inline-block;
-        margin-top: 10px;
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
     }
 
-    .view-btn:hover {
-        background-color: #005fcc;
-        color: white;
+    .order-meta {
+        background: #f8fafc;
+        padding: 1.2rem;
+        border-radius: 8px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        border: 1px solid #f1f5f9;
+    }
+
+    .meta-item label {
+        display: block;
+        font-size: 0.7rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+        font-weight: 700;
+    }
+
+    .meta-item span {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1rem;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+        .orders-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .order-card {
+            padding: 1.5rem;
+        }
     }
 </style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNav"
-            aria-controls="userNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <a href="/">⚡ SmartCart</a>
+
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
-        <div class="collapse navbar-collapse" id="userNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="/user-home">🏠 Home</a></li>
-                <li class="nav-item">
-                    <a class="nav-link position-relative" href="/user/cart">
-                        🛒 Cart
-                        {% if cart_count %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            {{ cart_count }}
-                        </span>
-                        {% endif %}
-                    </a>
-                </li>
-                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/user-logout">🚪 Logout</a></li>
-            </ul>
+
+        <div class="nav-links">
+            <a href="/user-home">Home</a>
+            <a href="/user/my-orders">My Orders</a>
+            <a href="/user/cart">
+                Cart
+                {% if cart_count %}
+                <span
+                    style="background: var(--light-green); color: #000; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; margin-left: 5px;">{{
+                    cart_count }}</span>
+                {% endif %}
+            </a>
+            <a href="/user-logout" style="border-color: #ffcccc; color: #ffcccc !important;">Logout</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <div class="order-container">
-        <div class="page-header">
-            <h2>📦 My Orders</h2>
-            <p>Track and manage your past orders</p>
-        </div>
+<div class="user-container">
+    <div class="user-header">
+        <h2>📦 My Order History</h2>
+        <p>Manage and track all your past purchases</p>
+    </div>
 
-        {% if orders|length == 0 %}
-        <div style="text-align: center; padding: 2rem;">
-            <p>You have not placed any orders yet.</p>
-            <a href="/user-home" class="btn btn-primary"
-                style="display: inline-block; width: auto; margin-top: 1rem;">Start Shopping</a>
-        </div>
-        {% else %}
+    {% if orders|length == 0 %}
+    <div class="empty-state">
+        <p>You have not placed any orders yet.</p>
+        <a href="/user-home" class="btn-primary">Start Shopping</a>
+    </div>
+    {% else %}
 
+    <div class="orders-grid">
         {% for order in orders %}
         <div class="order-card">
-            <h3>Order #{{ order.order_id }}</h3>
-            <div class="order-info">
-                <p><strong>Amount:</strong> ₹{{ order.amount }}</p>
-                <p><strong>Status:</strong> {{ order.payment_status }}</p>
-                <p><strong>Date:</strong> {{ order.created_at }}</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin:0; font-size: 1.2rem; font-weight: 800; color: #1e293b;">Order #{{ order.order_id }}
+                </h3>
+                <span
+                    class="status-badge {% if order.payment_status == 'Paid' %}status-paid{% else %}status-pending{% endif %}"
+                    style="font-size: 0.7rem; padding: 4px 10px; border-radius: 50px; font-weight: 700; text-transform: uppercase;">
+                    {{ order.payment_status }}
+                </span>
             </div>
 
-            <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <a href="/user/order-success/{{ order.order_id }}" class="view-btn"
-                    style="flex: 1; text-align: center;">
+            <div class="order-meta">
+                <div class="meta-item">
+                    <label>Amount</label>
+                    <span>₹{{ "{:,.2f}".format(order.amount) }}</span>
+                </div>
+                <div class="meta-item">
+                    <label>Date</label>
+                    <span>{{ order.created_at.split(' ')[0] if ' ' in order.created_at else order.created_at }}</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.8rem;">
+                <a href="/user/order-success/{{ order.order_id }}" class="btn-secondary"
+                    style="flex: 1; font-size: 0.9rem; padding: 10px;">
                     View Details
                 </a>
-                <a href="/user/download-invoice/{{ order.order_id }}" class="view-btn"
-                    style="background: #666; flex: 1; text-align: center;">
-                    Download Invoice
+                <a href="/user/download-invoice/{{ order.order_id }}" class="btn-primary"
+                    style="flex: 1; font-size: 0.9rem; padding: 10px;">
+                    Invoice
                 </a>
             </div>
         </div>
         {% endfor %}
-
-        {% endif %}
     </div>
+
+    {% endif %}
 </div>
 {% endblock %}

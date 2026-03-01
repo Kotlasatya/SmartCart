@@ -3,131 +3,318 @@
 {% block title %}Product Details - SmartCart{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/admin.css">
+<!-- Link to Admin CSS for consistent styling -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 <style>
-    .product-detail {
+    /* NAVBAR MOBILE OVERRIDES (Sync with admin_signup) */
+    @media (max-width: 768px) {
+        nav>div {
+            position: relative;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--white);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        nav a {
+            white-space: nowrap !important;
+        }
+
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            position: static;
+            background-color: var(--light-blue);
+            padding: 1.5rem 0 0 0;
+            gap: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 15px;
+        }
+
+        .nav-links.active {
+            display: flex;
+        }
+
+        .nav-links a {
+            display: block;
+            margin: 0 3rem;
+            background-color: var(--light-green);
+            color: var(--white) !important;
+            padding: 10px 15px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 1px solid var(--white);
+        }
+    }
+
+    @media (max-width: 374px) {
+        nav a {
+            font-size: 1.4rem !important;
+        }
+
+        .hamburger {
+            width: 25px;
+            height: 18px;
+        }
+    }
+
+    @media (min-width: 769px) {
+        .hamburger {
+            display: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            font-weight: 500;
+        }
+    }
+
+    /* PRODUCT VIEW SPECIFIC STYLES */
+    .product-detail-card {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 2rem;
-        margin-bottom: 2rem;
-    }
-
-    .product-image {
-        text-align: center;
-        background-color: transparent !important;
-        background: transparent !important;
-    }
-
-    .product-image img {
-        max-width: 100%;
-        max-height: 400px;
-        height: auto;
-        width: auto;
-        object-fit: contain;
-        border: 3px solid #FFD700;
-        border-radius: 10px;
-    }
-
-    .product-details h3 {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         margin-top: 1.5rem;
     }
 
-    .product-spec {
-        margin-bottom: 1.5rem;
-    }
-
-    .product-spec-label {
-        color: #B71C1C;
-        font-weight: 600;
-        font-size: 14px;
-        text-transform: uppercase;
-    }
-
-    .product-spec-value {
-        color: #333;
-        font-size: 18px;
-        margin-top: 0.3rem;
-    }
-
-    @media (max-width: 768px) {
-        .product-detail {
-            grid-template-columns: 1fr;
+    @media (min-width: 768px) {
+        .product-detail-card {
+            grid-template-columns: 350px 1fr;
         }
     }
+
+    .product-image-section {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e2e8f0;
+    }
+
+    .product-image-section img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-info-section h1 {
+        font-size: 2rem;
+        color: var(--dark-slate);
+        margin-bottom: 0.5rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .info-item {
+        padding: 1rem;
+        background: #f1f5f9;
+        border-radius: 8px;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #64748b;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--dark-slate);
+    }
+
+    .price-badge {
+        display: inline-block;
+        background: var(--light-green);
+        color: var(--white);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-edit,
+    .btn-delete {
+        flex: 1;
+        min-width: 150px;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .btn-edit {
+        background: var(--light-blue);
+        color: var(--white);
+    }
+
+    .btn-delete {
+        background: #ef4444;
+        color: var(--white);
+    }
+
+    .btn-edit:hover {
+        background: #0088cc;
+        transform: translateY(-2px);
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+    }
+
+    .auth-footer {
+        margin-top: 2rem;
+        text-align: center;
+        border-top: 1px solid #eee;
+        padding-top: 1.5rem;
+    }
+
+    .auth-footer a {
+        color: var(--light-blue);
+        font-weight: 700;
+        text-decoration: none;
+    }
 </style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
-            aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <a href="/">⚡ SmartCart</a>
+
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
-        <div class="collapse navbar-collapse" id="adminNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="/admin-dashboard">📊 Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="/admin/profile">👤 Profile</a></li>
-                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/admin-logout">🚪 Logout</a></li>
-            </ul>
+
+        <div class="nav-links">
+            <a href="/admin-dashboard">📊 Dashboard</a>
+            <a href="/admin/profile">👤 Profile</a>
+            <a href="/admin-logout">🚪 Logout</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <div class="page-header">
+<div class="admin-container">
+    <div class="admin-header">
         <h2>👁️ Product Details</h2>
+        <p>Complete overview and management of this inventory item</p>
     </div>
 
-    <div class="card p-4">
-        <div class="product-detail">
-            <div class="product-image">
-                <img src="/static/uploads/product_images/{{ product.image }}" alt="{{ product.name }}">
-            </div>
+    <div class="product-detail-card">
+        <div class="product-image-section">
+            <img src="/static/uploads/product_images/{{ product.image }}" alt="{{ product.name }}">
+        </div>
 
-            <div class="product-details">
-                <h1 style="margin-top: 0;">{{ product.name }}</h1>
+        <div class="product-info-section">
+            <h1>{{ product.name }}</h1>
+            <div class="price-badge">₹{{ product.price }}</div>
 
-                <div class="product-spec">
-                    <div class="product-spec-label">Product ID</div>
-                    <div class="product-spec-value">#{{ product.product_id }}</div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Product ID</div>
+                    <div class="info-value">#{{ product.product_id }}</div>
                 </div>
 
-                <div class="product-spec">
-                    <div class="product-spec-label">Category</div>
-                    <div class="product-spec-value">
-                        <span style="background: #F0F0F0; padding: 0.4rem 0.8rem; border-radius: 4px;">{{
-                            product.category }}</span>
+                <div class="info-item">
+                    <div class="info-label">Category</div>
+                    <div class="info-value">{{ product.category }}</div>
+                </div>
+
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <div class="info-label">Description</div>
+                    <div class="info-value" style="font-weight: 400; font-size: 0.95rem; line-height: 1.6;">
+                        {{ product.description }}
                     </div>
                 </div>
+            </div>
 
-                <div class="product-spec">
-                    <div class="product-spec-label">Price</div>
-                    <div class="product-spec-value" style="color: #B71C1C; font-weight: bold; font-size: 28px;">₹{{
-                        product.price }}</div>
-                </div>
-
-                <div class="product-spec">
-                    <div class="product-spec-label">Description</div>
-                    <div class="product-spec-value">{{ product.description }}</div>
-                </div>
-
-                <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <a class="btn btn-primary" href="/admin/update-item/{{ product.product_id }}"
-                        style="margin-bottom: 0;">✏️ Edit Product</a>
-                    <a class="btn btn-danger" href="/admin/delete-item/{{ product.product_id }}"
-                        style="margin-bottom: 0;" onclick="return confirm('Delete this product?');">🗑️ Delete
-                        Product</a>
-                </div>
+            <div class="action-buttons">
+                <a href="/admin/update-item/{{ product.product_id }}" class="btn-edit">✏️ Edit Product</a>
+                <a href="/admin/delete-item/{{ product.product_id }}" class="btn-delete"
+                    onclick="return confirm('Delete this product?');">🗑️ Delete Product</a>
             </div>
         </div>
     </div>
 
-    <div class="card" style="text-align: center; margin-top: 2rem;">
-        <a href="/admin-dashboard" style="color: #B71C1C; font-weight: 600; font-size: 16px;">← Back to Product List</a>
+    <div class="auth-footer">
+        <a href="/admin-dashboard">← Back to Product List</a>
     </div>
 </div>
 {% endblock %}

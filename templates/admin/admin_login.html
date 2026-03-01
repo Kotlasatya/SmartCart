@@ -3,58 +3,230 @@
 {% block title %}Admin Login - SmartCart{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/admin.css">
+<!-- Link to Admin CSS also works well for Login Forms -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    /* NAVBAR MOBILE OVERRIDES (Copied from add_item.html for consistency) */
+    @media (max-width: 768px) {
+        nav>div {
+            position: relative;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--white);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Dropdown Menu - IN FLOW */
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            position: static;
+            background-color: var(--light-blue);
+            padding: 1.5rem 0 0 0;
+            gap: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 15px;
+            box-shadow: none;
+        }
+
+        .nav-links.active {
+            display: flex;
+        }
+
+        .nav-links a {
+            display: block;
+            width: auto;
+            margin: 0 3rem;
+            background-color: var(--light-green);
+            color: var(--white) !important;
+            padding: 10px 15px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--white);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    /* Ultra Small Screens (320px) Fix */
+    @media (max-width: 374px) {
+        nav a {
+            font-size: 1.4rem !important;
+            /* Smaller logo font */
+        }
+
+        .hamburger {
+            width: 25px;
+            height: 18px;
+            /* Slightly smaller toggle */
+        }
+    }
+
+    /* Desktop Nav Links */
+    @media (min-width: 769px) {
+        .hamburger {
+            display: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            font-weight: 500;
+        }
+    }
+
+    /* Additional Styling for Login Page Specific Elements */
+    .login-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 200px);
+        /* Centers vertically comfortably */
+        width: 100%;
+        padding: 1rem;
+        /* Prevent edge touching on small screens */
+    }
+
+    .admin-container {
+        width: 100%;
+        max-width: 900px;
+        /* INCREASED to 900px */
+    }
+
+    .helper-links {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .helper-links a {
+        color: var(--light-blue);
+        text-decoration: none;
+        border-bottom: 1px dashed var(--light-blue);
+    }
+
+    .helper-links a:hover {
+        color: var(--gold);
+        border-color: var(--gold);
+    }
+
+    .signup-area {
+        margin-top: 2rem;
+        text-align: center;
+        border-top: 1px solid #eee;
+        padding-top: 1.5rem;
+    }
+
+    .signup-area p {
+        color: #666;
+    }
+
+    .signup-area a {
+        color: var(--light-blue);
+        font-weight: 700;
+    }
+</style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark py-4" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <div class="ms-auto">
-            <a href="/" class="btn btn-outline-light me-2">🏠 Home</a>
-            <a href="/user-login" class="btn btn-light text-dark fw-bold">👤 User Login</a>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <!-- Logo -->
+        <a href="/">⚡ SmartCart</a>
+
+        <!-- Hamburger Menu Button -->
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <!-- Links -->
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/user-login">User</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5 col-xl-4">
-        <div class="text-center mb-4">
-            <h2 class="display-6 fw-bold text-primary">🔐 Admin Login</h2>
-            <p class="text-muted">Access your SmartCart dashboard</p>
+<div class="login-wrapper">
+    <div class="admin-container">
+        <div class="admin-header">
+            <h2>🔐 Admin Login</h2>
+            <p>Access your SmartCart dashboard</p>
         </div>
 
-        <div class="card shadow border-0 rounded-3">
-            <div class="card-body p-0">
-                <form method="POST" action="/admin-login">
-                    <div class="mb-3">
-                        <label for="email" class="form-label fw-bold text-success">Email Address</label>
-                        <input type="email" class="form-control form-control-lg" id="email" name="email"
-                            placeholder="Enter your email" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="password" class="form-label fw-bold text-success">Password</label>
-                        <input type="password" class="form-control form-control-lg" id="password" name="password"
-                            placeholder="Enter your password" required>
-                    </div>
-
-                    <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-success btn-lg">🔓 Login to Dashboard</button>
-                    </div>
-
-                    <div class="text-end">
-                        <a href="/admin/forgot_password" class="text-decoration-none text-danger small fw-bold">Forgot
-                            Password?</a>
-                    </div>
-                </form>
+        <form method="POST" action="/admin-login" class="admin-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
             </div>
-            <div class="card-footer text-center py-2 bg-light border-0 rounded-bottom-3">
-                <p class="mb-0">Don't have an account? <a href="/admin-signup"
-                        class="text-decoration-none fw-bold text-danger">Sign up here</a></p>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
             </div>
+
+            <button type="submit" class="btn-submit">🔓 Login</button>
+
+            <div class="helper-links">
+                <a href="/admin/forgot_password">Forgot Password?</a>
+            </div>
+        </form>
+
+        <div class="signup-area">
+            <p>Don't have an account? <a href="/admin-signup">Sign up here</a></p>
         </div>
     </div>
 </div>

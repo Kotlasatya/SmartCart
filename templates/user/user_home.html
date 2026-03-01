@@ -1,184 +1,338 @@
 {% extends "base.html" %}
 
-{% block title %}User Home - SmartCart{% endblock %}
+{% block title %}Explore Products - SmartCart{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/user.css">
+<!-- Link to User CSS for consistent styling -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
 <style>
-    .dashboard-welcome {
-        margin-bottom: 2rem;
+    /* User Home Specific Styles */
+    .welcome-banner {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        border-radius: 24px;
+        color: white;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+        animation: fadeIn 0.8s ease-out;
     }
 
-    .admin-info {
-        color: #131921;
-        font-weight: 600;
+    .welcome-banner::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(5, 188, 250, 0.1) 0%, transparent 70%);
+        pointer-events: none;
     }
 
-    .search-section {
-        background: #FFF;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    .welcome-banner h1 {
+        margin: 0;
+        font-size: 3rem;
+        font-weight: 800;
+        letter-spacing: -1px;
     }
 
-    .product-toolbar {
+    .welcome-banner p {
+        opacity: 0.8;
+        font-size: 1.2rem;
+        margin-top: 0.5rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .search-filter-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+        margin-bottom: 3.5rem;
+        border: 1px solid #f1f5f9;
+        margin-top: -2rem;
+        position: relative;
+        z-index: 10;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .filter-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .welcome-banner h1 {
+            font-size: 2.2rem;
+        }
+
+        .welcome-banner {
+            padding: 3rem 1.5rem 5rem 1.5rem;
+        }
+    }
+
+    .search-group {
         display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        align-items: center;
-        margin-bottom: 0;
+        gap: 0.75rem;
+    }
+
+    /* Product Grid */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2.5rem;
+        margin-bottom: 4rem;
     }
 
     .product-card {
-        transition: box-shadow 0.2s;
-        height: 100%;
-        border: 1px solid #e0e0e0;
-    }
-
-    .product-card:hover {
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        border-color: #FFD814;
-    }
-
-    .product-image-container {
-        height: 200px;
+        background: white;
+        border-radius: 20px;
         overflow: hidden;
-        background: #f8f9fa;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid #f1f5f9;
         display: flex;
-        align-items: center;
-        justify-content: center;
-        border-bottom: 1px solid #e0e0e0;
+        flex-direction: column;
         position: relative;
     }
 
-    .product-image {
+    .product-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12);
+        border-color: var(--light-blue);
+    }
+
+    .product-image-wrapper {
+        position: relative;
+        height: 240px;
+        background: #fbfcfd;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .product-image-wrapper img {
         max-width: 100%;
         max-height: 100%;
         object-fit: contain;
+        transition: transform 0.5s ease;
     }
 
-    .badge-category {
+    .product-card:hover .product-image-wrapper img {
+        transform: scale(1.1);
+    }
+
+    .category-badge {
         position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(255, 255, 255, 0.9);
-        color: #333;
-        font-weight: 500;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        top: 15px;
+        left: 15px;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--light-blue);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .product-details {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-details h5 {
+        font-size: 1.2rem;
+        color: #0f172a;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+
+    .product-details p {
+        color: #64748b;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+    }
+
+    .price-action {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1.2rem;
+        border-top: 1px solid #f1f5f9;
+        gap: 10px;
+    }
+
+    .price-tag {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--light-blue);
+    }
+
+    .btn-view-modern {
+        background: #eff6ff;
+        color: var(--light-blue);
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s;
+        font-size: 1.2rem;
+    }
+
+    .btn-view-modern:hover {
+        background: var(--light-blue);
+        color: white;
+        transform: rotate(90deg);
+    }
+
+    .btn-add-quick {
+        background: var(--light-green);
+        color: #000;
+        padding: 10px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-add-quick:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 </style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNav"
-            aria-controls="userNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <a href="/">⚡ SmartCart</a>
+
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
-        <div class="collapse navbar-collapse" id="userNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="/user/my-orders">📦 My Orders</a></li>
-                <li class="nav-item">
-                    <a class="nav-link position-relative" href="/user/cart">
-                        🛒 Cart
-                        {% if cart_count %}
-                        <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-danger">
-                            {{ cart_count }}
-                        </span>
-                        {% endif %}
-                    </a>
-                </li>
-                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/user-logout">🚪 Logout</a></li>
-            </ul>
+
+        <div class="nav-links">
+            <a href="/user-home">Explore</a>
+            <a href="/user/cart">
+                Cart
+                {% if cart_count %}
+                <span
+                    style="background: var(--light-green); color: #000; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; margin-left: 5px;">{{
+                    cart_count }}</span>
+                {% endif %}
+            </a>
+            <a href="/user/my-orders">Orders</a>
+            <a href="/user-logout" style="opacity: 0.7;">Logout</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-welcome">
-    <div class="p-4 bg-light rounded-3 border-start border-5 border-info shadow-sm">
-        <h1 class="display-6">⚡ Welcome, <span class="admin-info">{{ user_name }}</span></h1>
-        <p class="lead mb-0">Discover amazing products at unbeatable prices</p>
-    </div>
+<div class="welcome-banner">
+    <h1>Hello, {{ user_name }}! 👋</h1>
+    <p>Discover our latest tech collection curated just for you.</p>
 </div>
 
-<!-- Search & Filter Section -->
-<div class="card search-section">
-    <div class="card-body">
-        <h3 class="card-title h5 mb-3">🔍 Search & Filter Products</h3>
+<div class="user-container" style="padding: 0; background: transparent; box-shadow: none; border: none; margin-top: 0;">
+    <div class="search-filter-card">
+        <div class="filter-grid">
+            <form method="GET" action="/user-home" class="search-group">
+                <input type="text" name="search" placeholder="Search for products..."
+                    value="{{ request.args.get('search', '') }}" style="background: #f8fafc;">
+                <button type="submit" class="btn-primary" style="padding: 0 25px;">Search</button>
+            </form>
 
-        <div class="product-toolbar row g-3">
-            <div class="col-md-6">
-                <form method="GET" action="/user-home" class="toolbar-form">
-                    <div class="input-group">
-                        <input type="text" name="search" class="form-control" placeholder="Search products..."
-                            value="{{ request.args.get('search', '') }}">
-                        <button type="submit" class="btn">Search</button>
-                    </div>
-                </form>
-            </div>
-            <div class="col-md-6">
-                <form method="GET" action="/user-home" class="toolbar-form">
-                    <div class="input-group">
-                        <select name="category" class="form-select">
-                            <option value="">All Categories</option>
-                            {% for cat in categories %}
-                            <option value="{{ cat.category }}" {% if request.args.get('category')==cat.category %}
-                                selected {% endif %}>
-                                {{ cat.category }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="btn btn-secondary">Filter</button>
-                    </div>
-                </form>
-            </div>
+            <form method="GET" action="/user-home" class="search-group">
+                <select name="category" style="background: #f8fafc;">
+                    <option value="">Filter by Category</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.category }}" {% if request.args.get('category')==cat.category %}selected{%
+                        endif %}>
+                        {{ cat.category }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-secondary"
+                    style="padding: 0 25px; background: #64748b;">Filter</button>
+            </form>
         </div>
     </div>
-</div>
 
-
-<!-- Products Grid -->
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-5">
-    {% for product in products %}
-    <div class="col">
-        <div class="card product-card">
-            <div class="product-image-container">
-                <img src="/static/uploads/product_images/{{ product.image }}" alt="{{ product.name }}"
-                    class="product-image" loading="lazy">
-                <span class="badge-category">{{ product.category }}</span>
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-image-wrapper">
+                <img src="/static/uploads/product_images/{{ product.image }}" alt="{{ product.name }}">
+                <span class="category-badge">{{ product.category }}</span>
             </div>
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title text-truncate">{{ product.name }}</h5>
-                <p class="card-text text-muted small flex-grow-1">
-                    {{ (product.description|default(''))[:80] }}{% if (product.description|default(''))|length > 80
-                    %}...{% endif %}
-                </p>
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <span class="h5 mb-0 text-success">₹{{ product.price }}</span>
-                    <a href="/user/product-details/{{ product.product_id }}"
-                        class="btn btn-sm btn-outline-primary stretched-link">View Details</a>
+            <div class="product-details">
+                <h5>{{ product.name }}</h5>
+                <p>{{ (product.description|default(''))[:85] }}{% if (product.description|default(''))|length > 85
+                    %}...{% endif %}</p>
+                <div class="price-action">
+                    <span class="price-tag">₹{{ "{:,.0f}".format(product.price) }}</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <a href="/user/product-details/{{ product.product_id }}" class="btn-view-modern"
+                            title="View Details">➜</a>
+                        <a href="/user/add-to-cart/{{ product.product_id }}" class="btn-add-quick">Add</a>
+                    </div>
                 </div>
             </div>
-            <div class="card-footer bg-white border-top-0 pt-0 text-end">
-                <small class="text-muted">ID: #{{ product.product_id }}</small>
+        </div>
+        {% else %}
+        <div style="grid-column: 1 / -1;">
+            <div class="empty-state">
+                <span style="font-size: 4rem;">🔍</span>
+                <h3 style="margin-top: 1rem;">No matching products</h3>
+                <p>Try different keywords or categories.</p>
+                <a href="/user-home" class="btn-primary" style="margin-top: 1rem;">View All Products</a>
             </div>
         </div>
+        {% endfor %}
     </div>
-    {% else %}
-    <div class="col-12">
-        <div class="alert alert-info text-center py-4">
-            <h4>No products found</h4>
-            <p class="mb-0">Try adjusting your search or filter criteria.</p>
-        </div>
-    </div>
-    {% endfor %}
 </div>
 {% endblock %}

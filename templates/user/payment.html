@@ -3,115 +3,167 @@
 {% block title %}Payment - SmartCart{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/user.css">
+<!-- Link to User CSS for consistent styling -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+<style>
+    .payment-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-top: 2rem;
+        border: 1px solid #e2e8f0;
+    }
+
+    .amount-display {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--light-blue);
+        margin: 1.5rem 0;
+    }
+
+    .address-section {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        text-align: left;
+        border-left: 4px solid var(--light-blue);
+    }
+
+    .address-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    #address-form {
+        display: none;
+        margin-top: 1rem;
+    }
+
+    #address-form textarea {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        font-family: inherit;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+
+    .payment-footer {
+        margin-top: 2rem;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+</style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNav"
-            aria-controls="userNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <a href="/">⚡ SmartCart</a>
+
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
-        <div class="collapse navbar-collapse" id="userNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="/user-home">🏠 Home</a></li>
-                <li class="nav-item">
-                    <a class="nav-link position-relative" href="/user/cart">
-                        🛒 Cart
-                        {% if cart_count %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            {{ cart_count }}
-                        </span>
-                        {% endif %}
-                    </a>
-                </li>
-                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/user-logout">🚪 Logout</a></li>
-            </ul>
+
+        <div class="nav-links">
+            <a href="/user-home">Home</a>
+            <a href="/user/cart">Cart</a>
+            <a href="/user/my-orders">My Orders</a>
+            <a href="/user-logout">Logout</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <div style="max-width: 500px; margin: 0 auto; text-align: center;">
-        <div class="page-header">
-            <h2>💳 Complete Your Payment</h2>
-            <p>Secure payment processing via Razorpay</p>
-        </div>
+<div class="user-container" style="max-width: 600px; text-align: center;">
+    <div class="user-header">
+        <h1>💳 Checkout</h1>
+        <p>Complete your purchase securely via Razorpay</p>
+    </div>
 
-        <div class="card" style="padding: 2rem;">
-            <p style="font-size: 18px; margin-bottom: 2rem;"><strong>Total Amount:</strong> <span
-                    style="color: #B12704; font-size: 24px;">₹{{ amount }}</span></p>
+    <div class="payment-card">
+        <p style="text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 600;">Total Amount
+            Payable</p>
+        <div class="amount-display">₹{{ amount }}</div>
 
-            <div style="text-align: left; margin-bottom: 2rem; background: #f8f9fa; padding: 1rem; border-radius: 8px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h4 style="margin-top: 0; color: #111; margin-bottom: 0;">Delivery Address</h4>
-                    <button type="button" class="btn btn-sm btn-outline-primary"
-                        onclick="toggleAddressForm()">Edit</button>
-                </div>
-
-                <div id="address-display">
-                    <p style="margin-top: 0.5rem; margin-bottom: 0; color: #555;">{{ user.address }}</p>
-                </div>
-
-                <form id="address-form" action="/user/update-address" method="POST"
-                    style="display: none; margin-top: 1rem;">
-                    <textarea name="address" class="form-control" rows="3" required>{{ user.address }}</textarea>
-                    <div style="margin-top: 0.5rem; text-align: right;">
-                        <button type="button" class="btn btn-sm btn-secondary"
-                            onclick="toggleAddressForm()">Cancel</button>
-                        <button type="submit" class="btn btn-sm btn-success">Update</button>
-                    </div>
-                </form>
+        <div class="address-section">
+            <div class="address-header">
+                <h4 style="margin: 0; color: var(--dark-slate);">📍 Delivery Address</h4>
+                <button type="button" class="btn-secondary" style="padding: 5px 12px; font-size: 0.85rem;"
+                    onclick="toggleAddressForm()">Edit</button>
             </div>
 
-            <script>
-                function toggleAddressForm() {
-                    var display = document.getElementById('address-display');
-                    var form = document.getElementById('address-form');
+            <div id="address-display">
+                <p style="margin: 0; line-height: 1.6; color: #475569;">{{ user.address }}</p>
+            </div>
 
-                    if (form.style.display === "none") {
-                        form.style.display = "block";
-                        display.style.display = "none";
-                    } else {
-                        form.style.display = "none";
-                        display.style.display = "block";
-                    }
-                }
-            </script>
+            <form id="address-form" action="/user/update-address" method="POST">
+                <textarea name="address" rows="3" required
+                    placeholder="Enter your full address...">{{ user.address }}</textarea>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn-secondary" style="background: #94a3b8;"
+                        onclick="toggleAddressForm()">Cancel</button>
+                    <button type="submit" class="btn-primary" style="padding: 8px 20px;">Update</button>
+                </div>
+            </form>
+        </div>
 
-            <button id="rzp-button" style="width: 100%; padding: 1rem; font-size: 16px;">Pay Now</button>
-            <p style="margin-top: 1rem; font-size: 12px; color: #666;">You will be redirected to Razorpay secure
-                checkout.</p>
+        <button id="rzp-button" class="btn-primary"
+            style="width: 100%; padding: 1.2rem; font-size: 1.2rem; font-weight: 700;">PROCEED TO PAY</button>
+
+        <div class="payment-footer">
+            <p>🔒 Secure 256-bit SSL Encrypted Payment</p>
+            <p style="margin-top: 5px;">You will be redirected to Razorpay checkout</p>
         </div>
     </div>
 </div>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
 <script>
+    function toggleAddressForm() {
+        var display = document.getElementById('address-display');
+        var form = document.getElementById('address-form');
+        if (form.style.display === "none" || form.style.display === "") {
+            form.style.display = "block";
+            display.style.display = "none";
+        } else {
+            form.style.display = "none";
+            display.style.display = "block";
+        }
+    }
+
     var options = {
         "key": "{{ key_id }}",
-        "amount": "{{ amount * 100 }}",
+        "amount": "{{ (amount | float * 100) | int }}",
         "currency": "INR",
         "name": "SmartCart",
         "description": "Order Payment",
         "order_id": "{{ order_id }}",
         "handler": function (response) {
-            // Build a small form and POST to server for verification
             var form = document.createElement("form");
             form.method = "POST";
             form.action = "/verify-payment";
-
             var fields = {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_signature: response.razorpay_signature
             };
-
             for (var name in fields) {
                 var input = document.createElement("input");
                 input.type = "hidden";
@@ -119,12 +171,11 @@
                 input.value = fields[name];
                 form.appendChild(input);
             }
-
             document.body.appendChild(form);
             form.submit();
         },
-        "prefill": {
-            // optionally prefill user info
+        "theme": {
+            "color": "#1DA1F2"
         }
     };
 

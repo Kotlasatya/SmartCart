@@ -3,54 +3,178 @@
 {% block title %}Verify OTP - SmartCart Admin{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/admin.css">
+<!-- Link to Admin CSS for consistent styling -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 <style>
-    .auth-container {
-        max-width: 500px;
-        margin: 0 auto;
+    /* NAVBAR MOBILE OVERRIDES (Sync with admin_signup) */
+    @media (max-width: 768px) {
+        nav>div {
+            position: relative;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--white);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        nav a {
+            white-space: nowrap !important;
+        }
+
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            position: static;
+            background-color: var(--light-blue);
+            padding: 1.5rem 0 0 0;
+            gap: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 15px;
+        }
+
+        .nav-links.active {
+            display: flex;
+        }
+
+        .nav-links a {
+            display: block;
+            margin: 0 3rem;
+            background-color: var(--light-green);
+            color: var(--white) !important;
+            padding: 10px 15px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 1px solid var(--white);
+        }
+    }
+
+    @media (max-width: 374px) {
+        nav a {
+            font-size: 1.4rem !important;
+        }
+
+        .hamburger {
+            width: 25px;
+            height: 18px;
+        }
+    }
+
+    @media (min-width: 769px) {
+        .hamburger {
+            display: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            font-weight: 500;
+        }
+    }
+
+    .auth-footer {
+        margin-top: 2rem;
+        text-align: center;
+        border-top: 1px solid #eee;
+        padding-top: 1.5rem;
+    }
+
+    .auth-footer a {
+        color: var(--light-blue);
+        font-weight: 700;
+        text-decoration: none;
     }
 </style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <div class="ms-auto">
-            <a href="/" class="btn btn-outline-light me-2">🏠 Home</a>
-            <a href="/admin-login" class="btn btn-light text-dark fw-bold">🔐 Login</a>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <a href="/">⚡ SmartCart</a>
+
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/admin-login">Login</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <div class="auth-container">
-        <div class="page-header">
-            <h2>🔐 Verify OTP</h2>
-            <p>Complete your registration process</p>
+<div class="admin-container" style="max-width: 500px;">
+    <div class="admin-header">
+        <h2>🔐 Verify OTP</h2>
+        <p>Complete your registration process</p>
+    </div>
+
+    <form method="POST" action="/verify-otp" class="admin-form">
+        <div class="form-group">
+            <label for="otp">Enter OTP *</label>
+            <input type="text" id="otp" name="otp" placeholder="Enter the code sent to your email" required>
         </div>
 
-
-
-        <div class="card p-4 shadow-sm">
-            <form method="POST" action="/verify-otp">
-                <div class="mb-3">
-                    <label for="otp" class="form-label">Enter OTP</label>
-                    <input type="text" class="form-control" id="otp" name="otp"
-                        placeholder="Enter the OTP sent to your email" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="password" class="form-label">Create Password</label>
-                    <input type="password" class="form-control" id="password" name="password"
-                        placeholder="Create a strong password" required>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100">✓ Verify & Register</button>
-            </form>
+        <div class="form-group">
+            <label for="password">Create Password *</label>
+            <input type="password" id="password" name="password" placeholder="Min 8 characters recommended" required>
         </div>
+
+        <button type="submit" class="btn-submit">✓ Verify & Register</button>
+    </form>
+
+    <div class="auth-footer">
+        <p style="color: #64748b; font-size: 0.9rem;">Need to try again? <a href="/admin-signup">Go back</a></p>
     </div>
 </div>
 {% endblock %}

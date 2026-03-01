@@ -3,69 +3,242 @@
 {% block title %}Admin Profile - SmartCart{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/admin.css">
+<!-- Link to Admin CSS for consistent styling -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    /* NAVBAR MOBILE OVERRIDES (Copied from add_item.html for consistency) */
+    @media (max-width: 768px) {
+        nav>div {
+            position: relative;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--white);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Force Logo to stay on one line on small screens */
+        nav a {
+            white-space: nowrap !important;
+        }
+
+        /* Dropdown Menu - IN FLOW */
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            position: static;
+            background-color: var(--light-blue);
+            padding: 1.5rem 0 0 0;
+            gap: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 15px;
+            box-shadow: none;
+        }
+
+        .nav-links.active {
+            display: flex;
+        }
+
+        .nav-links a {
+            display: block;
+            width: auto;
+            margin: 0 3rem;
+            background-color: var(--light-green);
+            color: var(--white) !important;
+            /* Force white text */
+            padding: 10px 15px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--white);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    /* Ultra Small Screens (320px) Fix */
+    @media (max-width: 374px) {
+        nav a {
+            font-size: 1.4rem !important;
+            /* Smaller logo font */
+        }
+
+        .hamburger {
+            width: 25px;
+            height: 18px;
+            /* Slightly smaller toggle */
+        }
+    }
+
+    /* Desktop Nav Links */
+    @media (min-width: 769px) {
+        .hamburger {
+            display: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            font-weight: 500;
+        }
+    }
+
+    /* Profile Image Section Styling */
+    .profile-img-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .profile-img-wrapper {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid var(--light-blue);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+        background-color: var(--white);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .profile-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-img-section p {
+        font-weight: 600;
+        color: #666;
+        margin: 0;
+    }
+
+    /* Form Overrides */
+    .admin-form {
+        margin-top: 1rem;
+    }
+</style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
-            aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <!-- Logo -->
+        <a href="/">⚡ SmartCart</a>
+
+        <!-- Hamburger Menu Button -->
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
-        <div class="collapse navbar-collapse" id="adminNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="/admin-dashboard">📊 Dashboard</a></li>
-                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/admin-logout">🚪 Logout</a></li>
-            </ul>
+
+        <!-- Links -->
+        <div class="nav-links">
+            <a href="/admin-dashboard">Dashboard</a>
+            <a href="/admin-logout">Logout</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <div style="max-width: 700px; margin: 0 auto;">
-        <div class="page-header">
-            <h2>👤 Admin Profile</h2>
-            <p>Manage your profile information</p>
-        </div>
+<div class="admin-container">
+    <div class="admin-header">
+        <h2>👤 Admin Profile</h2>
+        <p>Manage your account information and security</p>
+    </div>
 
-        <!-- Current Profile Image -->
-        <div class="card" style="text-align: center;">
+    <!-- Profile Image Section -->
+    <div class="profile-img-section">
+        <div class="profile-img-wrapper">
             {% if admin.profile_image %}
-            <img class="admin-avatar" src="/static/uploads/admin_profiles/{{ admin.profile_image }}" alt="Admin Avatar">
+            <img src="/static/uploads/admin_profiles/{{ admin.profile_image }}" alt="Admin Avatar">
             {% else %}
-            <img class="admin-avatar" src="https://via.placeholder.com/120/B71C1C/FFD700?text=No+Image"
-                alt="No Profile Image">
+            <img src="https://via.placeholder.com/150/05bcfa/FFFFFF?text=Admin" alt="No Profile Image">
             {% endif %}
-            <p style="margin-top: 1rem; font-size: 12px; color: #666;">Current Profile Picture</p>
         </div>
+        <p>Current Profile Picture</p>
+    </div>
 
-        <form method="POST" action="/admin/profile" enctype="multipart/form-data">
+    <form method="POST" action="/admin/profile" enctype="multipart/form-data" class="admin-form">
+        <div class="form-group">
             <label for="name">Full Name *</label>
-            <input type="text" id="name" name="name" value="{{ admin.name }}" required>
-
-            <label for="email">Email Address *</label>
-            <input type="email" id="email" name="email" value="{{ admin.email }}" required>
-
-            <label for="password">New Password (Leave blank to keep current)</label>
-            <input type="password" id="password" name="password"
-                placeholder="Enter new password if you want to change it">
-
-            <label for="profile_image">Upload New Profile Picture (Optional)</label>
-            <input type="file" id="profile_image" name="profile_image" accept="image/*">
-            <small style="color: #666; display: block; margin-top: -0.8rem; margin-bottom: 1rem;">Accepted formats: JPG,
-                PNG, WebP</small>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%;">✓ Update Profile</button>
-        </form>
-
-        <div class="card" style="text-align: center; margin-top: 2rem;">
-            <a href="/admin-dashboard" style="color: #B71C1C; font-weight: 600; font-size: 16px;">← Back to
-                Dashboard</a>
+            <input type="text" id="name" name="name" value="{{ admin.name }}" placeholder="Enter your full name"
+                required>
         </div>
+
+        <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" value="{{ admin.email }}" placeholder="Enter your email"
+                required>
+        </div>
+
+        <div class="form-group">
+            <label for="profile_image">Update Profile Picture</label>
+            <input type="file" id="profile_image" name="profile_image" accept="image/*">
+            <small>Accepted formats: JPG, PNG, WebP (Max 2MB)</small>
+        </div>
+
+        <button type="submit" class="btn-submit">✓ Update</button>
+    </form>
+
+    <div class="back-link-container">
+        <a href="/admin-dashboard" class="back-link">← Back to Dashboard</a>
     </div>
 </div>
 {% endblock %}

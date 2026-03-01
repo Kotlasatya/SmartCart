@@ -3,148 +3,266 @@
 {% block title %}Invoice - SmartCart{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/user.css">
+<!-- Link to User CSS for consistent styling -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
 <style>
-    .invoice-box {
-        max-width: 800px;
-        margin: auto;
-        padding: 30px;
-        border: 1px solid #eee;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-        font-size: 16px;
-        line-height: 24px;
-        font-family: inherit;
-        color: #555;
-        background: #fff;
+    /* Invoice Page Specific & Print Styles */
+    .invoice-card {
+        padding: 4rem;
     }
 
-    .header {
-        text-align: center;
-        border-bottom: 2px solid #eee;
-        padding-bottom: 20px;
-        margin-bottom: 20px;
+    .invoice-top-layout {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid #f1f5f9;
+        gap: 2rem;
+        flex-wrap: wrap;
     }
 
-    table {
-        width: 100%;
-        margin-top: 20px;
-        border-collapse: collapse;
+    .bill-to h4,
+    .order-info h4 {
+        color: var(--light-blue);
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+        font-weight: 800;
     }
 
-    th,
-    td {
-        border: 1px solid #ddd;
-        padding: 12px;
-        text-align: left;
+    .bill-to p,
+    .order-info p {
+        margin: 0.2rem 0;
+        color: #475569;
+        font-size: 1rem;
     }
 
-    th {
-        background-color: #f9f9f9;
-        color: #333;
+    .invoice-total-section {
+        margin-top: 3rem;
+        text-align: right;
+        padding: 2rem;
+        background: #f8fafc;
+        border-radius: 12px;
     }
 
+    .invoice-total-section h2 {
+        color: var(--light-blue);
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .invoice-actions {
+        margin-top: 3rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    /* Print Overrides */
     @media print {
 
-        header,
-        footer,
         nav,
-        .navbar,
-        .no-print {
+        footer,
+        .invoice-actions {
             display: none !important;
         }
 
-        .invoice-box {
-            box-shadow: none;
-            border: 0;
-            width: 100%;
-            max-width: none;
-        }
-
-        .main-content {
-            margin: 0;
-            padding: 0;
-        }
-
         body {
-            background-color: #fff;
+            background: white !important;
         }
 
-        .container {
-            max-width: 100%;
+        .user-container {
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            max-width: 100% !important;
+        }
+
+        .invoice-card {
+            padding: 2rem;
+        }
+    }
+
+    /* NAVBAR MOBILE OVERRIDES (Sync with admin_signup style) */
+    @media (max-width: 768px) {
+        nav>div {
+            position: relative;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
             padding: 0;
-            margin: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--white);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            position: static;
+            background-color: var(--light-blue);
+            padding: 1.5rem 0 0 0;
+            gap: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 15px;
+        }
+
+        .nav-links.active {
+            display: flex;
+        }
+
+        .nav-links a {
+            display: block;
+            margin: 0 3rem;
+            background-color: var(--light-green);
+            color: var(--white) !important;
+            padding: 10px 15px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 1px solid var(--white);
+        }
+    }
+
+    @media (min-width: 769px) {
+        .hamburger {
+            display: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            font-weight: 500;
         }
     }
 </style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNav"
-            aria-controls="userNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <a href="/">⚡ SmartCart</a>
+
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
-        <div class="collapse navbar-collapse" id="userNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="/user-home">🏠 Home</a></li>
-                <li class="nav-item">
-                    <a class="nav-link position-relative" href="/user/cart">
-                        🛒 Cart
-                        {% if cart_count %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            {{ cart_count }}
-                        </span>
-                        {% endif %}
-                    </a>
-                </li>
-                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/user-logout">🚪 Logout</a></li>
-            </ul>
+
+        <div class="nav-links">
+            <a href="/user-home">Home</a>
+            <a href="/user/cart">Cart</a>
+            <a href="/user/my-orders">My Orders</a>
+            <a href="/user-logout">Logout</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <div class="invoice-box">
-        <div class="header">
-            <h2>SmartCart Invoice</h2>
-            <p><strong>Order ID:</strong> {{ order.order_id }}</p>
-            <p><strong>Date:</strong> {{ order.created_at }}</p>
-        </div>
-
-        <h3>Customer Details</h3>
-        <p><strong>Name:</strong> {{ user.name }}</p>
-        <p><strong>Address:</strong> {{ user.address }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-
-        <h3>Items</h3>
-        <table>
-            <tr>
-                <th>Product</th>
-                <th>Qty</th>
-                <th>Price (₹)</th>
-            </tr>
-
-            {% for it in items %}
-            <tr>
-                <td>{{ it.product_name }}</td>
-                <td>{{ it.quantity }}</td>
-                <td>{{ it.price }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-
-        <h3 style="text-align:right;">Grand Total: ₹{{ order.amount }}</h3>
+<div class="user-container invoice-card">
+    <div class="user-header">
+        <h1>🧾 SmartCart Invoice</h1>
+        <p>Thank you for your purchase!</p>
     </div>
 
-    <div style="text-align: center; margin-top: 2rem; margin-bottom: 2rem;" class="no-print">
-        <button onclick="window.print()" class="btn btn-primary" style="width: auto; padding: 0.5rem 1rem;">🖨️ Print
-            Invoice</button>
-        <a href="/user/my-orders" class="btn btn-secondary"
-            style="display: inline-block; width: auto; padding: 0.5rem 1rem;">Back to Orders</a>
+    <div class="invoice-top-layout">
+        <div class="bill-to">
+            <h4>Billed To</h4>
+            <p><strong>{{ user.name }}</strong></p>
+            <p>{{ user.address }}</p>
+            <p>{{ user.email }}</p>
+        </div>
+        <div class="order-info">
+            <h4>Order Details</h4>
+            <p><strong>Order ID:</strong> #{{ order.order_id }}</p>
+            <p><strong>Date:</strong> {{ order.created_at }}</p>
+            <p><strong>Status:</strong> <span style="color: var(--light-green); font-weight: 700;">PAID</span></p>
+        </div>
+    </div>
+
+    <div class="user-table-container">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th style="text-align: center;">Qty</th>
+                    <th style="text-align: right;">Price (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for it in items %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 700; color: #1e293b;">{{ it.product_name }}</div>
+                    </td>
+                    <td style="text-align: center;">{{ it.quantity }}</td>
+                    <td style="text-align: right; font-weight: 600;">₹{{ "{:,.2f}".format(it.price) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="invoice-total-section">
+        <p style="color: #64748b; margin-bottom: 0.5rem; font-weight: 600;">Grand Total</p>
+        <h2>₹{{ "{:,.2f}".format(order.amount) }}</h2>
+    </div>
+
+    <div class="invoice-actions">
+        <button onclick="window.print()" class="btn-primary" style="display: flex; align-items: center; gap: 8px;">
+            🖨️ Print Invoice
+        </button>
+        <a href="/user/my-orders" class="btn-secondary" style="display: flex; align-items: center; gap: 8px;">
+            📦 My Orders
+        </a>
     </div>
 </div>
 {% endblock %}

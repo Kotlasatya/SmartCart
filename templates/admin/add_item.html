@@ -3,62 +3,196 @@
 {% block title %}Add Product - SmartCart{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/admin.css">
+<!-- Link to Admin CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    /* NAVBAR MOBILE OVERRIDES (Copied from index.html for consistency) */
+    @media (max-width: 768px) {
+        nav>div {
+            position: relative;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--white);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Force Logo to stay on one line on small screens */
+        nav a {
+            white-space: nowrap !important;
+        }
+
+        /* Dropdown Menu - IN FLOW */
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            position: static;
+            background-color: var(--light-blue);
+            padding: 1.5rem 0 0 0;
+            gap: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 15px;
+            box-shadow: none;
+        }
+
+        .nav-links.active {
+            display: flex;
+        }
+
+        .nav-links a {
+            display: block;
+            width: auto;
+            margin: 0 3rem;
+            background-color: var(--light-green);
+            color: var(--white) !important;
+            /* Force white text */
+            padding: 10px 15px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--white);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    /* Ultra Small Screens (320px) Fix */
+    @media (max-width: 374px) {
+        nav a {
+            font-size: 1.4rem !important;
+            /* Smaller logo font */
+        }
+
+        .hamburger {
+            width: 25px;
+            height: 18px;
+            /* Slightly smaller toggle */
+        }
+    }
+
+    /* Desktop Nav Links */
+    @media (min-width: 769px) {
+        .hamburger {
+            display: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            font-weight: 500;
+        }
+    }
+</style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
-            aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <!-- Logo -->
+        <a href="/">⚡ SmartCart</a>
+
+        <!-- Hamburger Menu Button -->
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
-        <div class="collapse navbar-collapse" id="adminNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="/admin-dashboard">📊 Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="/admin/profile">👤 Profile</a></li>
-                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/admin-logout">🚪 Logout</a></li>
-            </ul>
+
+        <!-- Links -->
+        <div class="nav-links">
+            <a href="/admin-dashboard">Dashboard</a>
+            <a href="/admin-logout">Logout</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <div style="max-width: 700px; margin: 0 auto;">
-        <div class="page-header">
-            <h2>➕ Add New Product</h2>
-            <p>Fill in the details to add a new product to your inventory</p>
-        </div>
+<div class="admin-container">
+    <div class="admin-header">
+        <h2>➕ Add New Product</h2>
+        <p>Fill in the details to add a new product to your inventory</p>
+    </div>
 
-        <form method="POST" action="/admin/add-item" enctype="multipart/form-data">
+    <form method="POST" action="/admin/add-item" enctype="multipart/form-data" class="admin-form">
+        <div class="form-group">
             <label for="name">Product Name *</label>
             <input type="text" id="name" name="name" placeholder="Enter product name" required>
+        </div>
 
+        <div class="form-group">
             <label for="description">Description *</label>
             <textarea id="description" name="description" placeholder="Enter detailed product description"
                 required></textarea>
+        </div>
 
+        <div class="form-group">
             <label for="category">Category *</label>
             <input type="text" id="category" name="category" placeholder="e.g., Electronics, Clothing, etc." required>
+        </div>
 
+        <div class="form-group">
             <label for="price">Price (₹) *</label>
             <input type="number" id="price" name="price" step="0.01" placeholder="Enter product price" required>
+        </div>
 
+        <div class="form-group">
             <label for="image">Product Image *</label>
             <input type="file" id="image" name="image" accept="image/*" required>
-            <small style="color: #666; display: block; margin-top: -0.8rem; margin-bottom: 1rem;">Accepted formats: JPG,
-                PNG, WebP (Max 5MB)</small>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%;">✓ Add Product</button>
-        </form>
-
-        <div class="card" style="text-align: center; margin-top: 2rem;">
-            <a href="/admin-dashboard" style="color: #B71C1C; font-weight: 600; font-size: 16px;">← Back to
-                Dashboard</a>
+            <small>Accepted formats: JPG, PNG, WebP (Max 5MB)</small>
         </div>
+
+        <button type="submit" class="btn-submit">✓ Add Product</button>
+    </form>
+
+    <div class="back-link-container">
+        <a href="/admin-dashboard" class="back-link">← Back to Dashboard</a>
     </div>
 </div>
 {% endblock %}

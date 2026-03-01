@@ -3,54 +3,190 @@
 {% block title %}Admin Signup - SmartCart{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/admin.css">
+<!-- Link to Admin CSS for consistent styling -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+    /* NAVBAR MOBILE OVERRIDES (Copied from add_item.html for consistency) */
+    @media (max-width: 768px) {
+        nav>div {
+            position: relative;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--white);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Force Logo to stay on one line on small screens */
+        nav a {
+            white-space: nowrap !important;
+        }
+
+        /* Dropdown Menu - IN FLOW */
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            position: static;
+            background-color: var(--light-blue);
+            padding: 1.5rem 0 0 0;
+            gap: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 15px;
+            box-shadow: none;
+        }
+
+        .nav-links.active {
+            display: flex;
+        }
+
+        .nav-links a {
+            display: block;
+            width: auto;
+            margin: 0 3rem;
+            background-color: var(--light-green);
+            color: var(--white) !important;
+            padding: 10px 15px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--white);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    /* Ultra Small Screens (320px) Fix */
+    @media (max-width: 374px) {
+        nav a {
+            font-size: 1.4rem !important;
+        }
+
+        .hamburger {
+            width: 25px;
+            height: 18px;
+        }
+    }
+
+    /* Desktop Nav Links */
+    @media (min-width: 769px) {
+        .hamburger {
+            display: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            font-weight: 500;
+        }
+    }
+
+    /* Custom Signup footer area */
+    .signup-footer {
+        margin-top: 2rem;
+        text-align: center;
+        border-top: 1px solid #eee;
+        padding-top: 1.5rem;
+    }
+
+    .signup-footer p {
+        color: #666;
+    }
+
+    .signup-footer a {
+        color: var(--light-blue);
+        font-weight: 700;
+    }
+</style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark py-4" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <div class="ms-auto">
-            <a href="/" class="btn btn-outline-light me-2">🏠 Home</a>
-            <a href="/admin-login" class="btn btn-light text-dark fw-bold">🔐 Login</a>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <a href="/">⚡ SmartCart</a>
+
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/admin-login">Login</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6 col-xl-5">
-        <div class="text-center mb-4">
-            <h2 class="display-6 fw-bold text-primary">📝 Admin Registration</h2>
-            <p class="text-muted">Create your SmartCart admin account</p>
+<div class="admin-container">
+    <div class="admin-header">
+        <h2>📝 Admin Registration</h2>
+        <p>Create your SmartCart admin account to get started</p>
+    </div>
+
+    <form method="POST" action="/admin-signup" class="admin-form">
+        <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" name="name" placeholder="Enter your full name" required>
         </div>
 
-        <div class="card shadow border-0 rounded-3">
-            <div class="card-body p-0">
-                <form method="POST" action="/admin-signup">
-                    <div class="mb-3">
-                        <label for="name" class="form-label fw-bold text-success">Full Name</label>
-                        <input type="text" class="form-control form-control-lg" id="name" name="name"
-                            placeholder="Enter your full name" required>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="email" class="form-label fw-bold text-success">Email Address</label>
-                        <input type="email" class="form-control form-control-lg" id="email" name="email"
-                            placeholder="Enter your email" required>
-                    </div>
-
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-success btn-lg">✉️ Send OTP</button>
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer text-center py-2 bg-light border-0 rounded-bottom-3">
-                <p class="mb-0">Already have an account? <a href="/admin-login"
-                        class="text-decoration-none fw-bold text-danger">Login here</a></p>
-            </div>
+        <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
         </div>
+
+        <button type="submit" class="btn-submit">✉️ Send OTP</button>
+    </form>
+
+    <div class="signup-footer">
+        <p>Already have an account? <a href="/admin-login">Login here</a></p>
     </div>
 </div>
 {% endblock %}

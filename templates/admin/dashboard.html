@@ -3,223 +3,596 @@
 {% block title %}Admin Dashboard - SmartCart{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/admin.css">
+<!-- Link to Admin CSS for consistent styling -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 <style>
-    .dashboard-welcome {
+    /* NAVBAR MOBILE OVERRIDES (Copied from add_item.html for consistency) */
+    @media (max-width: 768px) {
+        nav>div {
+            position: relative;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--white);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Force Logo to stay on one line on small screens */
+        nav a {
+            white-space: nowrap !important;
+        }
+
+        /* Dropdown Menu - IN FLOW */
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            position: static;
+            background-color: var(--light-blue);
+            padding: 1.5rem 0 0 0;
+            gap: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 15px;
+            box-shadow: none;
+        }
+
+        .nav-links.active {
+            display: flex;
+        }
+
+        .nav-links a {
+            display: block;
+            width: auto;
+            margin: 0 3rem;
+            background-color: var(--light-green);
+            color: var(--white) !important;
+            padding: 10px 15px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--white);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    /* Ultra Small Screens (320px) Fix */
+    @media (max-width: 374px) {
+        nav a {
+            font-size: 1.4rem !important;
+        }
+
+        .hamburger {
+            width: 25px;
+            height: 18px;
+        }
+    }
+
+    /* Desktop Nav Links */
+    @media (min-width: 769px) {
+        .hamburger {
+            display: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            font-weight: 500;
+        }
+    }
+
+    /* Dashboard Layout */
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .welcome-card {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 2.5rem;
         margin-bottom: 2rem;
-    }
-
-    .admin-info {
-        color: #131921;
-        font-weight: 600;
-    }
-
-    .action-buttons {
-        margin: 2rem 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        color: #333;
         display: flex;
-        gap: 1rem;
+        justify-content: space-between;
+        align-items: center;
         flex-wrap: wrap;
+        gap: 1.5rem;
     }
 
-    .search-section {
-        background: #FFF;
+    .welcome-text h1 {
+        color: var(--light-blue);
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .welcome-text span {
+        color: var(--gold);
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .welcome-text p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .btn-add-product {
+        background-color: var(--light-green);
+        color: var(--white);
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+        border: 2px solid var(--white);
+        box-shadow: 0 4px 10px rgba(144, 238, 144, 0.3);
+    }
+
+    .btn-add-product:hover {
+        background-color: var(--white);
+        color: var(--light-green);
+        border-color: var(--light-green);
+        transform: translateY(-3px);
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--white);
+        border-radius: 12px;
         padding: 1.5rem;
-        border-radius: 10px;
         margin-bottom: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .product-toolbar {
         display: flex;
-        gap: 1rem;
+        gap: 1.5rem;
         flex-wrap: wrap;
         align-items: center;
-        margin-bottom: 0;
     }
 
-    /* Match User Side Button Styles for Search Section */
-    .btn-search {
-        background-color: #FFD814 !important;
-        border-color: #FCD200 !important;
-        color: #111 !important;
+    .filter-bar h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        color: var(--white);
     }
 
-    .btn-search:hover {
-        background-color: #F7CA00 !important;
+    .search-form,
+    .filter-form {
+        display: flex;
+        gap: 0.5rem;
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .filter-bar input,
+    .filter-bar select {
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 2px solid var(--white);
+        background: transparent;
+        color: var(--white);
+        flex: 1;
+        margin-bottom: 0px !important;
+    }
+
+    .filter-bar select option {
+        color: #333;
     }
 
     .btn-filter {
-        background: linear-gradient(120deg, #0f172a, #1f2937) !important;
-        color: #fff !important;
-        border: 1px solid transparent !important;
+        padding: 10px 20px;
+        border-radius: 8px;
+        background: var(--gold);
+        color: var(--white);
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
     }
 
     .btn-filter:hover {
-        opacity: 0.95;
+        background: var(--white);
+        color: var(--gold);
     }
 
-    /* Reset form styles for the toolbar to avoid admin global form styles */
-    .search-section form {
-        background: none !important;
-        padding: 0 !important;
-        border: none !important;
-        box-shadow: none !important;
-        margin: 0 !important;
+    /* Table Styling */
+    .table-container {
+        background: var(--white);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        color: #333;
+        margin-bottom: 3rem;
     }
 
-    /* Match User Side Input Styles for Search Section with increased specificity */
-    div.search-section .input-group>.form-control,
-    div.search-section .input-group>.form-select {
-        border-radius: 999px !important;
-        border: 1px solid rgba(148, 163, 184, 0.8) !important;
-        padding: 0.6rem 1rem;
-        box-shadow: none !important;
-        height: auto;
+    .responsive-table {
+        width: 100%;
+        border-collapse: collapse;
     }
 
-    div.search-section .input-group>.form-control:focus,
-    div.search-section .input-group>.form-select:focus {
-        border-color: #38bdf8 !important;
-        box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.85) !important;
+    .responsive-table th {
+        background-color: var(--light-blue);
+        color: var(--white);
+        text-align: left;
+        padding: 1.2rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
     }
 
-    /* Fix rounded corners for input group - Ensure seamless pill shape */
-    div.search-section .input-group>.form-control,
-    div.search-section .input-group>.form-select {
-        border-top-right-radius: 0 !important;
-        border-bottom-right-radius: 0 !important;
-        border-right: none !important;
-        /* Merge with button */
+    .responsive-table td {
+        padding: 1.2rem;
+        border-bottom: 1px solid #f0f0f0;
+        vertical-align: middle;
     }
 
-    div.search-section .input-group>.btn {
-        border-top-left-radius: 0 !important;
-        border-bottom-left-radius: 0 !important;
-        border-top-right-radius: 999px !important;
-        /* Pill shape right */
-        border-bottom-right-radius: 999px !important;
-        padding: 0.6rem 1.5rem !important;
-        /* Match input padding */
-        margin-left: -1px;
-        /* overlap border */
-        height: auto;
+    .responsive-table tr:hover {
+        background-color: #f8fafc;
+    }
+
+    /* MOBILE RESPONSIVE TRANSFORMATIONS (< 768px) */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 0 1rem;
+            margin: 1rem auto;
+        }
+
+        .welcome-card {
+            padding: 1.5rem;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        .welcome-text h1 {
+            font-size: 1.8rem;
+        }
+
+        .btn-add-product {
+            width: 100%;
+        }
+
+        /* Filter Bar Stacking */
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        .filter-bar h3 {
+            text-align: center;
+        }
+
+        .search-form,
+        .filter-form {
+            width: 100%;
+            min-width: 0;
+        }
+
+        /* TABLE TO CARDS TRANSFORMATION */
+        .responsive-table,
+        .responsive-table thead,
+        .responsive-table tbody,
+        .responsive-table th,
+        .responsive-table td,
+        .responsive-table tr {
+            display: block;
+        }
+
+        .responsive-table thead tr {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        .responsive-table tr {
+            border: 1px solid #eee;
+            margin-bottom: 1rem;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            padding: 10px;
+        }
+
+        .responsive-table td {
+            border: none;
+            position: relative;
+            padding-left: 45% !important;
+            text-align: right !important;
+            padding: 10px 10px !important;
+            border-bottom: 1px solid #f9f9f9;
+        }
+
+        .responsive-table td:last-child {
+            border-bottom: none;
+        }
+
+        .responsive-table td:before {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            width: 40%;
+            padding-right: 10px;
+            white-space: nowrap;
+            text-align: left;
+            font-weight: 700;
+            color: var(--light-blue);
+            content: attr(data-label);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        /* Center Image in Card */
+        .responsive-table td[data-label="Image"] {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-left: 10px !important;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 10px;
+            background: #f8fafc;
+        }
+
+        .responsive-table td[data-label="Image"]:before {
+            display: none;
+        }
+
+        .product-img {
+            width: 80px;
+            height: 80px;
+        }
+
+        /* Full Width Actions on Mobile */
+        .action-btns {
+            justify-content: center;
+            margin-top: 5px;
+        }
+
+        .btn-action {
+            flex: 1;
+            text-align: center;
+        }
+    }
+
+    /* ULTRA SMALL SCREENS Fixes */
+    @media (max-width: 400px) {
+        .responsive-table td {
+            padding-left: 10px !important;
+            text-align: left !important;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .responsive-table td:before {
+            position: static;
+            width: 100%;
+        }
+
+        .action-btns {
+            flex-direction: column;
+        }
+    }
+
+    .product-img {
+        border-radius: 8px;
+        border: 1px solid #eee;
+        object-fit: cover;
+    }
+
+    .category-badge {
+        background: #e2e8f0;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        color: #475569;
+        font-weight: 600;
+    }
+
+    .action-btns {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .btn-view {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .btn-edit {
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    .btn-delete {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-view:hover {
+        background: #e2e8f0;
+    }
+
+    .btn-edit:hover {
+        background: #fde047;
+    }
+
+    .btn-delete:hover {
+        background: #fecaca;
+    }
+
+    @media (max-width: 900px) {
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .welcome-card {
+            text-align: center;
+            justify-content: center;
+        }
+
+        .welcome-text h1 {
+            font-size: 2rem;
+        }
     }
 </style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
-            aria-controls="adminNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <a href="/">⚡ SmartCart</a>
+
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
-        <div class="collapse navbar-collapse" id="adminNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/admin/profile">👤 My Profile</a></li>
-                <li class="nav-item"><a class="nav-link" href="/admin/orders">📦 Orders</a></li>
-                <li class="nav-item"><a class="nav-link text-warning" href="/admin-logout">🚪 Logout</a></li>
-            </ul>
+
+        <div class="nav-links">
+            <a href="/admin/profile">Profile</a>
+            <a href="/admin/orders">Orders</a>
+            <a href="/admin-logout">Logout</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-welcome">
-    <div class="p-4 bg-light rounded-3 border-start border-5 border-success shadow-sm">
-        <h1 class="display-6">⚡ Welcome, <span class="admin-info">{{ admin_name }}</span></h1>
-        <p class="lead mb-0">Manage your products efficiently with SmartCart</p>
-    </div>
-</div>
-
-<!-- Search & Filter Section -->
-<div class="card search-section">
-    <div class="card-body">
-        <h3 class="card-title h5 mb-3">🔍 Search & Filter Products</h3>
-
-        <div class="product-toolbar row g-3">
-            <div class="col-md-6">
-                <form method="GET" action="/admin-dashboard" class="toolbar-form">
-                    <div class="input-group">
-                        <input type="text" name="search" class="form-control" placeholder="Search products..."
-                            value="{{ request.args.get('search', '') }}">
-                        <button type="submit" class="btn btn-search">Search</button>
-                    </div>
-                </form>
-            </div>
-            <div class="col-md-6">
-                <form method="GET" action="/admin-dashboard" class="toolbar-form">
-                    <div class="input-group">
-                        <select name="category" class="form-select">
-                            <option value="">All Categories</option>
-                            {% for cat in categories %}
-                            <option value="{{ cat.category }}" {% if request.args.get('category')==cat.category %}
-                                selected {% endif %}>
-                                {{ cat.category }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="btn btn-filter">Filter</button>
-                    </div>
-                </form>
-            </div>
+<div class="dashboard-container">
+    <div class="welcome-card">
+        <div class="welcome-text">
+            <h1>⚡ Welcome, <span>{{ admin_name }}</span></h1>
+            <p>Manage your products efficiently with SmartCart Admin Panel</p>
         </div>
+        <a href="/admin/add-item" class="btn-add-product">➕ Add New Product</a>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="filter-bar">
+        <h3>🔍 Quick Filters</h3>
+
+        <form method="GET" action="/admin-dashboard" class="search-form">
+            <input type="text" name="search" placeholder="Search product name..."
+                value="{{ request.args.get('search', '') }}">
+            <button type="submit" class="btn-filter">Search</button>
+        </form>
+
+        <form method="GET" action="/admin-dashboard" class="filter-form">
+            <select name="category">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat.category }}" {% if request.args.get('category')==cat.category %} selected {% endif
+                    %}>
+                    {{ cat.category }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn-filter">Filter</button>
+        </form>
+    </div>
+
+    <!-- Products Table -->
+    <div class="table-container">
+        <table class="responsive-table">
+            <thead>
+                <tr>
+                    <th>#ID</th>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td data-label="#ID"><strong>#{{ product.product_id }}</strong></td>
+                    <td data-label="Image">
+                        <img src="/static/uploads/product_images/{{ product.image }}" width="50" height="50"
+                            alt="{{ product.name }}" class="product-img">
+                    </td>
+                    <td data-label="Product Name"><strong>{{ product.name }}</strong></td>
+                    <td data-label="Category"><span class="category-badge">{{ product.category }}</span></td>
+                    <td data-label="Price"><strong>₹{{ product.price }}</strong></td>
+                    <td data-label="Actions">
+                        <div class="action-btns">
+                            <a href="/admin/view-item/{{ product.product_id }}" class="btn-action btn-view">View</a>
+                            <a href="/admin/update-item/{{ product.product_id }}" class="btn-action btn-edit">Edit</a>
+                            <a href="/admin/delete-item/{{ product.product_id }}" class="btn-action btn-delete"
+                                onclick="return confirm('Delete this product?');">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 3rem;">
+                        <p style="color: #666; font-size: 1.2rem;">No products found in your inventory.</p>
+                        <a href="/admin/add-item" style="color: var(--light-blue); font-weight: 600;">Add your first
+                            product now</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
-
-<!-- Add Product Button -->
-<div class="action-buttons">
-    <a class="btn btn-success" href="/admin/add-item">➕ Add New Product</a>
-</div>
-
-<!-- Products Table -->
-<div class="table-responsive bg-white rounded shadow-sm p-3">
-    <table class="table table-hover align-middle">
-        <thead class="table-dark">
-            <tr>
-                <th>#ID</th>
-                <th>Image</th>
-                <th>Product Name</th>
-                <th>Category</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-            <tr>
-                <td><strong>#{{ product.product_id }}</strong></td>
-                <td>
-                    <img src="/static/uploads/product_images/{{ product.image }}" width="60" height="60"
-                        class="rounded border" alt="{{ product.name }}">
-                </td>
-                <td><strong>{{ product.name }}</strong></td>
-                <td><span class="badge bg-light text-dark border">{{ product.category }}</span></td>
-                <td><small class="text-muted">{{ product.description[:50] }}{% if product.description|length > 50
-                        %}...{% endif %}</small></td>
-                <td><strong class="text-danger fs-6">₹{{ product.price }}</strong></td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        <a class="btn btn-outline-primary" href="/admin/view-item/{{ product.product_id }}">View</a>
-                        <a class="btn btn-outline-secondary" href="/admin/update-item/{{ product.product_id }}">Edit</a>
-                        <a class="btn btn-outline-danger" href="/admin/delete-item/{{ product.product_id }}"
-                            onclick="return confirm('Delete this product?');">Delete</a>
-                    </div>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="7" class="text-center py-5">
-                    <p class="text-muted fs-5">No products found.</p>
-                    <a href="/admin/add-item" class="btn btn-primary btn-sm">Add your first product</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
 {% endblock %}

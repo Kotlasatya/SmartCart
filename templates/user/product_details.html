@@ -1,103 +1,168 @@
 {% extends "base.html" %}
 
-{% block title %}Product Details - SmartCart{% endblock %}
+{% block title %}{{ product.name }} - SmartCart{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/user.css">
+<!-- Link to User CSS for consistent styling -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
 <style>
-    .product-detail-card {
+    .product-details-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
         background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f5f9;
+        margin-bottom: 2rem;
     }
 
-    .product-detail-image-container {
-        background: #f8f9fa;
-        min-height: 400px;
+    @media (max-width: 768px) {
+        .product-details-container {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            padding: 1.5rem;
+        }
+    }
+
+    .product-image-box {
+        background: #f8fafc;
+        border-radius: 15px;
+        padding: 1.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
     }
 
-    .product-detail-image {
-        max-width: 100%;
-        max-height: 400px;
+    .product-image-box img {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
         object-fit: contain;
+        transition: transform 0.5s ease;
+    }
+
+    .product-image-box:hover img {
+        transform: scale(1.05);
+    }
+
+    .product-info-box {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .category-badge {
+        display: inline-block;
+        background: #e0f2fe;
+        color: var(--light-blue);
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        width: fit-content;
+    }
+
+    .product-title {
+        font-size: 2.5rem;
+        color: var(--dark-slate);
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+
+    .product-price {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--light-green);
+        margin-bottom: 1.5rem;
+    }
+
+    .product-description-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark-slate);
+        margin-bottom: 0.5rem;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 5px;
+        width: fit-content;
+    }
+
+    .product-description {
+        color: #64748b;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
     }
 </style>
+<script>
+    function toggleMobileMenu() {
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        navLinks.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+</script>
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #131921;">
-    <div class="container">
-        <a class="navbar-brand" href="/">⚡ SmartCart</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNav"
-            aria-controls="userNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+<nav>
+    <div style="flex-wrap: wrap;">
+        <a href="/">⚡ SmartCart</a>
+
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
-        <div class="collapse navbar-collapse" id="userNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="/user-home">🏠 Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/user/my-orders">📦 My Orders</a></li>
-                <li class="nav-item">
-                    <a class="nav-link position-relative" href="/user/cart">
-                        🛒 Cart
-                        {% if cart_count %}
-                        <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-danger">
-                            {{ cart_count }}
-                        </span>
-                        {% endif %}
-                    </a>
-                </li>
-                <li class="nav-item ms-lg-3"><a class="nav-link text-warning" href="/user-logout">🚪 Logout</a></li>
-            </ul>
+
+        <div class="nav-links">
+            <a href="/user-home">Home</a>
+            <a href="/user/cart">Cart</a>
+            <a href="/user/my-orders">My Orders</a>
+            <a href="/user-logout">Logout</a>
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/user-home">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
-    </ol>
-</nav>
+<div class="user-container" style="max-width: 1000px;">
 
-<div class="product-detail-card mb-5">
-    <div class="row g-0">
-        <div class="col-md-6 product-detail-image-container">
-            <img src="/static/uploads/product_images/{{ product.image }}" alt="{{ product.name }}"
-                class="product-detail-image p-4">
+    <div class="product-details-container">
+        <div class="product-image-box">
+            <img src="/static/uploads/product_images/{{ product.image }}" alt="{{ product.name }}">
         </div>
-        <div class="col-md-6">
-            <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
-                <div class="mb-auto">
-                    <span class="badge bg-secondary mb-2">{{ product.category }}</span>
-                    <h1 class="card-title display-5 fw-bold mb-3">{{ product.name }}</h1>
-                    <h2 class="mb-4" style="color: #B12704;">₹{{ product.price }}</h2>
 
-                    <h5 class="text-muted mb-2">Description</h5>
-                    <p class="card-text lead fs-6">{{ product.description }}</p>
-                </div>
+        <div class="product-info-box">
+            <span class="category-badge">{{ product.category }}</span>
+            <h1 class="product-title">{{ product.name }}</h1>
+            <div class="product-price">₹{{ product.price }}</div>
 
-                <div class="mt-4 pt-4 border-top">
-                    <div class="d-grid gap-2 d-md-flex">
-                        <a href="/user/add-to-cart/{{ product.product_id }}" class="btn btn-primary btn-lg flex-grow-1">
-                            <i class="fas fa-shopping-cart me-2"></i>Add to Cart
-                        </a>
-                        <!-- If wishlisting is added later, button can go here -->
-                    </div>
-                </div>
+            <h5 class="product-description-title">Description</h5>
+            <p class="product-description">{{ product.description }}</p>
+
+            <div class="button-group">
+                <a href="/user/add-to-cart/{{ product.product_id }}" class="btn-primary"
+                    style="flex: 1; padding: 1rem; text-align: center; font-size: 1.1rem;">
+                    🛒 Add to Cart
+                </a>
             </div>
         </div>
     </div>
-</div>
 
-<div class="mb-5">
-    <a href="/user-home" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-2"></i>Back to Shopping
-    </a>
+    <div style="margin-top: 2rem; border-top: 1px solid #e2e8f0; padding-top: 2rem;">
+        <a href="/user-home" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+            ⬅️ Back to Shopping
+        </a>
+    </div>
 </div>
 {% endblock %}
